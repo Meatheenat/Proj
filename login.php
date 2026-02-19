@@ -1,6 +1,6 @@
 <?php
 session_start();
-// ถ้ามีการล็อกอินค้างไว้แล้ว ให้เด้งไปหน้า index.php ทันที
+// ถ้าล็อกอินอยู่แล้ว ให้เด้งไปหน้าหลักของห้องสมุดทันที
 if(isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit();
@@ -35,16 +35,20 @@ if(isset($_SESSION['user_id'])) {
             justify-content: center;
             padding: 20px;
         }
-        /* บังคับให้ Card เปลี่ยนสีตามธีมแม้ CSS หลักจะหาไม่เจอ */
-        [data-bs-theme="dark"] body { background-color: #121212; color: #eee; }
-        [data-bs-theme="dark"] .card { background-color: #1e1e1e; color: #eee; border-color: #333; }
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 20px;
+        }
     </style>
 </head>
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
   <div class="container">
-    <a class="navbar-brand fw-bold" href="index.php"><i class="bi bi-book-half me-2"></i>LibraryMobile</a>
+    <a class="navbar-brand fw-bold" href="index.php">
+        <i class="bi bi-book-half me-2"></i>LibraryMobile
+    </a>
     <div class="ms-auto d-flex align-items-center">
         <button class="btn btn-link text-white me-2 p-0" id="themeToggle" type="button" style="text-decoration: none;">
             <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
@@ -55,12 +59,12 @@ if(isset($_SESSION['user_id'])) {
 </nav>
 
 <div class="login-wrapper">
-    <div class="card shadow-lg border-0" style="width: 100%; max-width: 400px; border-radius: 20px;">
+    <div class="card login-card shadow-lg border-0">
         <div class="card-body p-4 p-md-5">
             <div class="text-center mb-4">
-                <i class="bi bi-person-circle text-primary" style="font-size: 3rem;"></i>
-                <h3 class="fw-bold mt-2">เข้าสู่ระบบ</h3>
-                <p class="text-muted small">กรุณากรอกข้อมูลเพื่อเข้าใช้งานระบบคลังพัสดุ</p>
+                <i class="bi bi-book text-primary" style="font-size: 3rem;"></i>
+                <h3 class="fw-bold mt-2">เข้าสู่ระบบห้องสมุด</h3>
+                <p class="text-muted small">กรุณากรอกข้อมูลเพื่อค้นหาและยืมหนังสือ</p>
             </div>
 
             <?php if(isset($_GET['error'])) { ?>
@@ -83,9 +87,9 @@ if(isset($_SESSION['user_id'])) {
                         </button>
                     </div>
                 </div>
-                <button type="submit" name="login" class="btn btn-primary w-100 mb-3 fw-bold py-2 shadow-sm">เข้าสู่ระบบ</button>
+                <button type="submit" name="login" class="btn btn-primary w-100 mb-3 fw-bold py-2 shadow-sm">Login</button>
                 <div class="text-center small">
-                    <a href="register.php" class="text-decoration-none fw-bold">สมัครสมาชิก</a>
+                    <a href="register.php" class="text-decoration-none fw-bold">สมัครสมาชิกใหม่</a>
                     <span class="text-muted mx-2">|</span>
                     <a href="forgot_password.php" class="text-decoration-none text-muted">ลืมรหัสผ่าน?</a>
                 </div>
@@ -102,7 +106,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const themeIcon = document.getElementById('themeIcon');
     const htmlElement = document.documentElement;
 
-    // ฟังก์ชันจัดการสีไอคอน
     function updateIcon(theme) {
         if (theme === 'dark') {
             themeIcon.classList.replace('bi-moon-stars-fill', 'bi-sun-fill');
@@ -113,23 +116,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // เรียกใช้ตอนโหลดหน้า
     updateIcon(htmlElement.getAttribute('data-bs-theme'));
 
-    // ทำงานเมื่อกดสลับธีม
     if (themeToggle) {
         themeToggle.addEventListener('click', function() {
             const currentTheme = htmlElement.getAttribute('data-bs-theme');
             const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            
             htmlElement.setAttribute('data-bs-theme', newTheme);
             localStorage.setItem('theme', newTheme);
             updateIcon(newTheme);
-            console.log("Theme switched to: " + newTheme);
         });
     }
 
-    // ระบบเปิด-ปิดลูกตาดูรหัสผ่าน
     const toggleBtn = document.querySelector('.toggle-password');
     if (toggleBtn) {
         toggleBtn.addEventListener('click', function() {
