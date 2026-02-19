@@ -73,15 +73,25 @@ if(isset($_SESSION['user_id'])){
             </div>
             
             <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="password" class="form-label fw-semibold">รหัสผ่าน (Password)</label>
-                    <input type="password" name="password" id="password" class="form-control" placeholder="รหัสผ่าน" required>
-                </div>
-                <div class="col-md-6 mb-4">
-                    <label for="confirm_password" class="form-label fw-semibold">ยืนยันรหัสผ่าน</label>
-                    <input type="password" name="confirm_password" id="confirm_password" class="form-control" placeholder="รหัสผ่านอีกครั้ง" required>
-                </div>
-            </div>
+    <div class="col-md-6 mb-3">
+        <label for="password" class="form-label fw-semibold">รหัสผ่าน (Password)</label>
+        <div class="input-group">
+            <input type="password" name="password" id="password" class="form-control" placeholder="รหัสผ่าน" required>
+            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password">
+                <i class="bi bi-eye-slash"></i>
+            </button>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <label for="confirm_password" class="form-label fw-semibold">ยืนยันรหัสผ่าน</label>
+        <div class="input-group">
+            <input type="password" name="confirm_password" id="confirm_password" class="form-control" placeholder="รหัสผ่านอีกครั้ง" required>
+            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="confirm_password">
+                <i class="bi bi-eye-slash"></i>
+            </button>
+        </div>
+    </div>
+</div>
             
             <button type="submit" name="register" class="btn btn-success btn-lg w-100 mb-3 fw-bold">ยืนยันการสมัครสมาชิก</button>
             

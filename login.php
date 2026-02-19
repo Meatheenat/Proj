@@ -22,10 +22,15 @@
                     <label class="form-label">ชื่อผู้ใช้งาน</label>
                     <input type="text" name="username" class="form-control" placeholder="Username" required>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">รหัสผ่าน</label>
-                    <input type="password" name="password" class="form-control" placeholder="Password" required>
-                </div>
+                <div class="mb-4">
+    <label for="password" class="form-label fw-semibold">รหัสผ่าน (Password)</label>
+    <div class="input-group">
+        <input type="password" name="password" id="password" class="form-control form-control-lg" placeholder="กรอกรหัสผ่าน" required>
+        <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password">
+            <i class="bi bi-eye-slash"></i>
+        </button>
+    </div>
+</div>
                 <button type="submit" name="login" class="btn btn-primary w-100 mb-3">Login</button>
                 <div class="text-center">
                     <a href="register.php" class="text-decoration-none">สมัครสมาชิก</a> | 

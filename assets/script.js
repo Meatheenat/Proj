@@ -23,4 +23,30 @@ function handleForgotPass() {
     } else {
         alert("ระบบได้รับเรื่องแล้ว กรุณารอการติดต่อกลับจาก Admin");
     }
+    // ==========================================
+// ระบบเปิด-ปิดตา (Show/Hide Password)
+// ==========================================
+document.addEventListener('DOMContentLoaded', function() {
+    const togglePasswordButtons = document.querySelectorAll('.toggle-password');
+    
+    togglePasswordButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // หาว่าปุ่มนี้กำลังคุม Input ช่องไหนอยู่ (ดึงค่าจาก data-target)
+            const targetId = this.getAttribute('data-target');
+            const inputField = document.getElementById(targetId);
+            const icon = this.querySelector('i');
+            
+            // สลับสถานะระหว่าง password กับ text
+            if (inputField.type === 'password') {
+                inputField.type = 'text';
+                icon.classList.remove('bi-eye-slash'); // เอาตาปิดออก
+                icon.classList.add('bi-eye'); // ใส่ตาเปิด
+            } else {
+                inputField.type = 'password';
+                icon.classList.remove('bi-eye'); // เอาตาเปิดออก
+                icon.classList.add('bi-eye-slash'); // ใส่ตาปิด
+            }
+        });
+    });
+});
 }
