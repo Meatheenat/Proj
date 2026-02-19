@@ -9,7 +9,7 @@ if(!isset($_SESSION['user_id'])){
     header("Location: login.php");
     exit();
 }
-include('config/db.php'); // เรียกใช้ตามโครงสร้างไฟล์
+include('config/db.php'); // เรียกใช้ไฟล์เชื่อมต่อฐานข้อมูล
 
 // 2. ระบบนับแจ้งเตือนหนังสือเกินกำหนด (สำหรับไอคอนกระดิ่งบน Navbar)
 $today = date('Y-m-d');
@@ -20,7 +20,7 @@ $res_noti = mysqli_query($conn, $sql_noti);
 $noti_count = ($res_noti) ? mysqli_fetch_assoc($res_noti)['total'] : 0;
 
 // ==========================================
-// ระบบค้นหาและตัวกรอง (Logic การกรองข้อมูล)
+// ระบบค้นหาและตัวกรอง (Keep Logic เดิมของเพื่อน)
 // ==========================================
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 $category = isset($_GET['category']) ? mysqli_real_escape_string($conn, $_GET['category']) : '';
@@ -40,7 +40,6 @@ if($status != ''){ $sql .= " AND status = '$status'"; }
 $sql .= " ORDER BY book_id DESC";
 $result = mysqli_query($conn, $sql);
 
-// ดึงหมวดหมู่มาทำ Dropdown
 $cat_sql = "SELECT DISTINCT category FROM books WHERE category IS NOT NULL AND category != ''";
 $cat_result = mysqli_query($conn, $cat_sql);
 ?>
@@ -64,7 +63,7 @@ $cat_result = mysqli_query($conn, $cat_sql);
     </script>
 
     <style>
-        /* --- นิยามตัวแปรสี Full Dark Mode เปลี่ยนทั้งหน้า --- */
+        /* --- แก้ไขปัญหาจมและระบบ Full Dark Mode --- */
         [data-bs-theme="light"] {
             --bg-page: #f8f9fa;
             --bg-card: #ffffff;
@@ -88,18 +87,22 @@ $cat_result = mysqli_query($conn, $cat_sql);
             min-height: 100vh;
         }
 
-        .navbar { background-color: #212529 !important; }
+        /* Navbar: เพิ่ม Padding ด้านล่างเพื่อรองรับกล่องค้นหาไม่ให้จม */
+        .navbar { 
+            background-color: #212529 !important; 
+            padding-bottom: 70px !important; 
+        }
 
-        /* กล่องค้นหา (Search Box) - เพิ่ม Z-index เพื่อไม่ให้หายหรือโดนบัง */
+        /* กล่องค้นหา (Search Box): ปรับ Z-index และ Margin ใหม่ไม่ให้หาย */
         .search-box {
             background-color: var(--bg-card) !important;
             color: var(--text-color) !important;
             padding: 25px;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
-            margin-top: -50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+            margin-top: -55px; /* ดึงขึ้นไปทับส่วนที่เว้นไว้ใน Navbar */
             position: relative;
-            z-index: 1000; /* บังคับให้ลอยอยู่เหนือ Navbar */
+            z-index: 1000; /* บังคับให้อยู่เลเยอร์บนสุด */
             border: 1px solid transparent;
         }
 
@@ -132,15 +135,11 @@ $cat_result = mysqli_query($conn, $cat_sql);
             display: flex; align-items: center; justify-content: center;
             font-size: 3.5rem; border-radius: 15px 15px 0 0;
         }
-        [data-bs-theme="dark"] .book-cover-placeholder {
-            background: linear-gradient(135deg, #2a2a2a 0%, #444 100%);
-            opacity: 0.7;
-        }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark sticky-top pb-5 shadow-sm">
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
   <div class="container">
     <a class="navbar-brand fw-bold" href="index.php">
         <i class="bi bi-book-half me-2 text-primary"></i>LibraryMobile
@@ -176,7 +175,7 @@ $cat_result = mysqli_query($conn, $cat_sql);
 
 <div class="container mb-5">
     
-    <div class="search-box mb-5 shadow">
+    <div class="search-box mb-5">
         <form action="books.php" method="GET">
             <div class="row g-3">
                 <div class="col-12 col-md-5">
@@ -250,6 +249,7 @@ $cat_result = mysqli_query($conn, $cat_sql);
 </div>
 
 <footer class="text-center py-4 mt-5 opacity-50"><p class="small">LibraryMobile System © 2026</p></footer>
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
