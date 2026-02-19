@@ -25,7 +25,7 @@ $sql_noti = "SELECT COUNT(*) as total FROM borrow_records
 $res_noti = mysqli_query($conn, $sql_noti);
 $noti_count = ($res_noti) ? mysqli_fetch_assoc($res_noti)['total'] : 0;
 
-// 5. ดึงข้อมูลหนังสือแนะนำ สุ่มมา 4 เล่ม
+// 5. ดึงข้อมูลหนังสือแนะนำ สุ่มมา 4 เล่ม (รวมคอลัมน์ book_image ที่เพิ่มใหม่)
 $sql_recommend = "SELECT * FROM books ORDER BY RAND() LIMIT 4";
 $result_recommend = mysqli_query($conn, $sql_recommend);
 ?>
@@ -49,7 +49,7 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
     </script>
 
     <style>
-        /* --- นิยามตัวแปรสีให้เหมือนหน้า Login (Full Page Toggle) --- */
+        /* --- นิยามตัวแปรสี Full Dark Mode --- */
         [data-bs-theme="light"] {
             --bg-page: #f8f9fa;
             --bg-card: #ffffff;
@@ -85,6 +85,7 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
             border-radius: 15px;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
 
         .book-card:hover {
@@ -92,20 +93,24 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
             box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important;
         }
 
-        .book-img-placeholder {
+        /* ส่วนควบคุมการแสดงผลรูปหน้าปก */
+        .book-cover-container {
             height: 220px;
+            overflow: hidden;
             background: #eee;
-            border-radius: 15px 15px 0 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 4rem;
-            color: #ccc;
         }
 
-        [data-bs-theme="dark"] .book-img-placeholder {
+        [data-bs-theme="dark"] .book-cover-container {
             background: #2a2a2a;
-            color: #444;
+        }
+
+        .book-cover-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* ทำให้รูปเต็มกรอบสวยๆ */
         }
     </style>
 </head>
@@ -190,9 +195,18 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
         ?>
         <div class="col-6 col-md-4 col-lg-3">
             <div class="card book-card h-100 shadow-sm">
-                <div class="book-img-placeholder">
-                    <i class="bi bi-book"></i>
+                <div class="book-cover-container">
+                    <?php if(!empty($book['book_image']) && file_exists("assets/img/covers/" . $book['book_image'])): ?>
+                        <img src="assets/img/covers/<?php echo $book['book_image']; ?>" 
+                             class="book-cover-img" alt="หน้าปก">
+                    <?php else: ?>
+                        <div class="text-center">
+                            <i class="bi bi-book fs-1 text-muted"></i>
+                            <div class="small text-muted opacity-50 mt-1">ไม่มีรูปหน้าปก</div>
+                        </div>
+                    <?php endif; ?>
                 </div>
+
                 <div class="card-body d-flex flex-column">
                     <div class="mb-2">
                         <span class="badge <?php echo $status_color; ?> rounded-pill px-3"><?php echo $status_text; ?></span>
@@ -242,7 +256,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // เซ็ตธีมเริ่มต้น
     updateIcon(htmlElement.getAttribute('data-bs-theme'));
 
     if (themeToggle) {

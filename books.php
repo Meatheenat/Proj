@@ -19,7 +19,7 @@ $sql_noti = "SELECT COUNT(*) as total FROM borrow_records
 $res_noti = mysqli_query($conn, $sql_noti);
 $noti_count = ($res_noti) ? mysqli_fetch_assoc($res_noti)['total'] : 0;
 
-// 3. Logic ค้นหาหนังสือ (คงเดิมไว้)
+// 3. Logic ค้นหาหนังสือ (รวมคอลัมน์ book_image ที่เพิ่มใหม่)
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 $category = isset($_GET['category']) ? mysqli_real_escape_string($conn, $_GET['category']) : '';
 $status = isset($_GET['status']) ? mysqli_real_escape_string($conn, $_GET['status']) : '';
@@ -34,7 +34,7 @@ $sql .= " ORDER BY book_id DESC";
 $result = mysqli_query($conn, $sql);
 
 $cat_sql = "SELECT DISTINCT category FROM books WHERE category != ''";
-$cat_result = mysqli_query($conn, $cat_sql);
+$cat_result = mysqli_query($cat_sql);
 ?>
 <!DOCTYPE html>
 <html lang="th" data-bs-theme="light">
@@ -75,21 +75,19 @@ $cat_result = mysqli_query($conn, $cat_sql);
             min-height: 100vh;
         }
 
-        /* Navbar: ลบ Padding ออกเพื่อให้กล่องค้นหาไม่จม */
         .navbar { 
             background-color: #212529 !important; 
             padding-top: 15px !important;
             padding-bottom: 15px !important;
         }
 
-        /* กล่องค้นหา (Search Box): ปรับให้ต่อจาก Navbar สวยๆ ไม่ต้องทับกันแล้ว */
         .search-container {
             background-color: var(--bg-card) !important;
             color: var(--text-color) !important;
             padding: 30px;
             border-radius: 15px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            margin-top: 20px; /* เลิกใช้เลขติดลบแล้วเพื่อน */
+            margin-top: 20px;
             margin-bottom: 30px;
         }
 
@@ -98,17 +96,30 @@ $cat_result = mysqli_query($conn, $cat_sql);
             border: none !important;
             border-radius: 15px;
             transition: transform 0.3s ease;
+            overflow: hidden; /* บังคับให้รูปไม่ล้นขอบการ์ด */
         }
         .book-card:hover {
             transform: translateY(-5px);
         }
 
-        .book-placeholder {
-            height: 160px;
-            background: #ffffff;
-            border-radius: 12px 12px 0 0;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 3rem; color: #444;
+        /* ส่วนควบคุมการแสดงผลรูปหน้าปก */
+        .book-cover-container {
+            height: 200px;
+            overflow: hidden;
+            background: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        [data-bs-theme="dark"] .book-cover-container {
+            background: #2a2a2a;
+        }
+
+        .book-cover-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* ทำให้รูปเต็มกรอบสวยๆ */
         }
     </style>
 </head>
@@ -172,14 +183,25 @@ $cat_result = mysqli_query($conn, $cat_sql);
         </form>
     </div>
 
-    <div class="row g-4">
+    <div class="row g-4 mb-5">
         <?php if(mysqli_num_rows($result) > 0) { 
             while($book = mysqli_fetch_assoc($result)) { 
                 $is_avail = ($book['status'] == 'available');
         ?>
         <div class="col-6 col-md-4 col-lg-3">
             <div class="card book-card h-100 shadow-sm border-0">
-                <div class="book-placeholder"><i class="bi bi-book"></i></div>
+                <div class="book-cover-container">
+                    <?php if(!empty($book['book_image']) && file_exists("assets/img/covers/" . $book['book_image'])): ?>
+                        <img src="assets/img/covers/<?php echo $book['book_image']; ?>" 
+                             class="book-cover-img" alt="หน้าปก">
+                    <?php else: ?>
+                        <div class="text-center">
+                            <i class="bi bi-book fs-1 text-muted"></i>
+                            <div class="small text-muted opacity-50 mt-1">ไม่มีรูปหน้าปก</div>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
                 <div class="card-body d-flex flex-column p-3">
                     <span class="badge <?= $is_avail ? 'bg-success' : 'bg-danger' ?> mb-2 align-self-start">
                         <?= $is_avail ? 'ว่าง' : 'ถูกยืม' ?>
@@ -187,10 +209,10 @@ $cat_result = mysqli_query($conn, $cat_sql);
                     <h6 class="card-title fw-bold text-truncate" title="<?= $book['book_name'] ?>">
                         <?= htmlspecialchars($book['book_name']) ?>
                     </h6>
-                    <p class="card-text opacity-75 small"><?= htmlspecialchars($book['author']) ?></p>
+                    <p class="card-text opacity-75 small mb-3"><?= htmlspecialchars($book['author']) ?></p>
                     <div class="mt-auto">
                         <?php if($is_avail) { ?>
-                            <a href="borrow.php?id=<?= $book['book_id'] ?>" class="btn btn-primary btn-sm w-100 fw-bold rounded-pill">ยืมเล่มนี้</a>
+                            <a href="borrow.php?id=<?= $book['book_id'] ?>" class="btn btn-primary btn-sm w-100 fw-bold rounded-pill shadow-sm">ยืมเล่มนี้</a>
                         <?php } else { ?>
                             <button class="btn btn-secondary btn-sm w-100 fw-bold rounded-pill opacity-50" disabled>ไม่ว่าง</button>
                         <?php } ?>
@@ -199,7 +221,10 @@ $cat_result = mysqli_query($conn, $cat_sql);
             </div>
         </div>
         <?php } } else { ?>
-            <div class="col-12 text-center py-5 opacity-50">ไม่พบหนังสือที่ค้นหา</div>
+            <div class="col-12 text-center py-5 opacity-50">
+                <i class="bi bi-search display-1 mb-3"></i>
+                <h5>ไม่พบหนังสือที่ค้นหา</h5>
+            </div>
         <?php } ?>
     </div>
 </div>
