@@ -9,7 +9,7 @@ if(!isset($_SESSION['user_id'])){
     header("Location: login.php");
     exit();
 }
-include('config/db.php'); // เรียกใช้ตามโครงสร้างไฟล์ของเพื่อน
+include('config/db.php'); // เรียกใช้ตามโครงสร้างไฟล์
 
 // 2. ระบบนับแจ้งเตือนหนังสือเกินกำหนด (สำหรับไอคอนกระดิ่งบน Navbar)
 $today = date('Y-m-d');
@@ -20,7 +20,7 @@ $res_noti = mysqli_query($conn, $sql_noti);
 $noti_count = ($res_noti) ? mysqli_fetch_assoc($res_noti)['total'] : 0;
 
 // ==========================================
-// ระบบค้นหาและตัวกรอง (Keep Logic เดิมของเพื่อน)
+// ระบบค้นหาและตัวกรอง (Logic การกรองข้อมูล)
 // ==========================================
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 $category = isset($_GET['category']) ? mysqli_real_escape_string($conn, $_GET['category']) : '';
@@ -40,6 +40,7 @@ if($status != ''){ $sql .= " AND status = '$status'"; }
 $sql .= " ORDER BY book_id DESC";
 $result = mysqli_query($conn, $sql);
 
+// ดึงหมวดหมู่มาทำ Dropdown
 $cat_sql = "SELECT DISTINCT category FROM books WHERE category IS NOT NULL AND category != ''";
 $cat_result = mysqli_query($conn, $cat_sql);
 ?>
@@ -72,8 +73,8 @@ $cat_result = mysqli_query($conn, $cat_sql);
             --input-border: #dee2e6;
         }
         [data-bs-theme="dark"] {
-            --bg-page: #121212;      /* ดำสนิททั้งหน้า */
-            --bg-card: #1e1e1e;      /* การ์ดและกล่องค้นหาสีเข้ม */
+            --bg-page: #121212;
+            --bg-card: #1e1e1e;
             --text-color: #f8f9fa;
             --input-bg: #2b2b2b;
             --input-border: #444444;
@@ -89,7 +90,7 @@ $cat_result = mysqli_query($conn, $cat_sql);
 
         .navbar { background-color: #212529 !important; }
 
-        /* กล่องค้นหา (Search Box) ให้ลอยและเปลี่ยนสีตามธีม */
+        /* กล่องค้นหา (Search Box) - เพิ่ม Z-index เพื่อไม่ให้หายหรือโดนบัง */
         .search-box {
             background-color: var(--bg-card) !important;
             color: var(--text-color) !important;
@@ -98,7 +99,12 @@ $cat_result = mysqli_query($conn, $cat_sql);
             box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
             margin-top: -50px;
             position: relative;
-            z-index: 10;
+            z-index: 1000; /* บังคับให้ลอยอยู่เหนือ Navbar */
+            border: 1px solid transparent;
+        }
+
+        [data-bs-theme="dark"] .search-box {
+            border: 1px solid #333;
         }
 
         .form-control, .form-select {
@@ -170,7 +176,7 @@ $cat_result = mysqli_query($conn, $cat_sql);
 
 <div class="container mb-5">
     
-    <div class="search-box mb-5">
+    <div class="search-box mb-5 shadow">
         <form action="books.php" method="GET">
             <div class="row g-3">
                 <div class="col-12 col-md-5">
@@ -200,14 +206,14 @@ $cat_result = mysqli_query($conn, $cat_sql);
                 </div>
                 
                 <div class="col-12 col-md-2">
-                    <button type="submit" class="btn btn-primary w-100 fw-bold rounded-pill py-2">ค้นหา</button>
+                    <button type="submit" class="btn btn-primary w-100 fw-bold rounded-pill py-2 shadow-sm">ค้นหา</button>
                 </div>
             </div>
         </form>
     </div>
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="fw-bold m-0">ผลการค้นหา</h4>
+        <h4 class="fw-bold m-0"><i class="bi bi-filter-left me-2"></i>ผลการค้นหา</h4>
         <span class="badge bg-primary rounded-pill px-3 py-2 shadow-sm">พบ <?php echo mysqli_num_rows($result); ?> เล่ม</span>
     </div>
 
