@@ -1,5 +1,5 @@
 <?php 
-// เปิดโหมดดู Error (ถ้ามีปัญหาอีกจะได้รู้ทันทีว่าบรรทัดไหน)
+// เปิดโหมดดู Error
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -75,6 +75,9 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
             </div>
             <div class="d-flex flex-wrap gap-2 justify-content-center">
                 <a href="books.php" class="btn btn-primary btn-lg fw-bold px-4"><i class="bi bi-search me-2"></i>ค้นหาหนังสือ</a>
+                
+                <a href="return_book.php" class="btn btn-success btn-lg fw-bold px-4"><i class="bi bi-arrow-left-right me-2"></i>คืนหนังสือ</a>
+                
                 <a href="history.php" class="btn btn-outline-secondary btn-lg fw-bold px-4"><i class="bi bi-clock-history me-2"></i>ประวัติของฉัน</a>
                 
                 <?php if(isset($_SESSION['role']) && $_SESSION['role'] == 'admin') { ?>
@@ -91,7 +94,6 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
 
     <div class="row g-4">
         <?php 
-        // เช็คว่า Query ทำงานสำเร็จและมีข้อมูลหรือไม่
         if($result_recommend && mysqli_num_rows($result_recommend) > 0) {
             while($book = mysqli_fetch_assoc($result_recommend)) {
                 $status_text = ($book['status'] == 'available') ? 'ว่าง (ยืมได้)' : 'ถูกยืมแล้ว';
@@ -124,7 +126,6 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
         <?php 
             }
         } else {
-            // แก้ไข Syntax Error ตรงนี้แล้วครับ (เปลี่ยน "" เป็น '')
             echo "<div class='col-12'><p class='text-center text-muted'>ยังไม่มีข้อมูลหนังสือในระบบ</p></div>";
         }
         ?>
