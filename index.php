@@ -1,5 +1,5 @@
 <?php 
-// 1. เปิดโหมดดู Error เพื่อการตรวจสอบ
+// 1. เปิดโหมดดู Error เพื่อการตรวจสอบ (IT Support Style)
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -23,7 +23,7 @@ $sql_noti = "SELECT COUNT(*) as total FROM borrow_records
              AND status = 'pending' 
              AND due_date < '$today'";
 $res_noti = mysqli_query($conn, $sql_noti);
-$noti_count = mysqli_fetch_assoc($res_noti)['total'];
+$noti_count = ($res_noti) ? mysqli_fetch_assoc($res_noti)['total'] : 0;
 
 // 5. ดึงข้อมูลหนังสือแนะนำ สุ่มมา 4 เล่ม
 $sql_recommend = "SELECT * FROM books ORDER BY RAND() LIMIT 4";
@@ -34,7 +34,7 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>หน้าแรก - ระบบยืมคืนหนังสือ</title>
+    <title>หน้าแรก - Library System</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
@@ -42,8 +42,17 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
     
     <link rel="stylesheet" href="assets/style.css">
     
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-bs-theme', savedTheme);
+        })();
+    </script>
+
     <style>
-        /* สไตล์เพิ่มเติมเฉพาะหน้า Index */
+        body { 
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
         .hero-section {
             background: linear-gradient(135deg, var(--primary-color, #4e73df) 0%, #224abe 100%);
             border-radius: 20px;
@@ -60,6 +69,7 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
         }
         .book-card:hover {
             transform: translateY(-10px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
         }
         .book-img-placeholder {
             height: 220px;
@@ -86,10 +96,10 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
     </a>
     
     <div class="ms-auto d-flex align-items-center">
-        <a href="notifications.php" class="btn btn-link text-white position-relative me-3 p-0" style="text-decoration: none;">
+        <a href="notifications.php" class="btn btn-link text-white position-relative me-3 p-0" title="แจ้งเตือน">
             <i class="bi bi-bell-fill fs-5"></i>
             <?php if($noti_count > 0) { ?>
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
                     <?php echo $noti_count; ?>
                 </span>
             <?php } ?>
@@ -100,10 +110,10 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
         </button>
 
         <div class="dropdown">
-            <button class="btn btn-outline-light btn-sm dropdown-toggle fw-bold px-3" type="button" data-bs-toggle="dropdown">
+            <button class="btn btn-outline-light btn-sm dropdown-toggle fw-bold px-3 rounded-pill" type="button" data-bs-toggle="dropdown">
                 <i class="bi bi-person-circle me-1"></i> <?php echo htmlspecialchars($_SESSION['fullname']); ?>
             </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="border-radius: 12px;">
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" style="border-radius: 12px;">
                 <li><a class="dropdown-item" href="history.php"><i class="bi bi-clock-history me-2 text-primary"></i>ประวัติของฉัน</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item text-danger" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i>ออกจากระบบ</a></li>
@@ -120,10 +130,10 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
             <div class="row align-items-center">
                 <div class="col-md-7 text-center text-md-start">
                     <h1 class="fw-bold mb-3">สวัสดีครับคุณ, <?php echo explode(' ', $_SESSION['fullname'])[0]; ?>!</h1>
-                    <p class="lead mb-4 opacity-75">ค้นหาหนังสือที่ใช่ และทำรายการยืม-คืนได้รวดเร็วผ่านระบบออนไลน์ของคุณ</p>
+                    <p class="lead mb-4 opacity-75">ค้นหาหนังสือที่ต้องการ และทำรายการยืม-คืนได้รวดเร็วผ่านมือถือของคุณ</p>
                     <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-md-start">
-                        <a href="books.php" class="btn btn-light btn-lg fw-bold px-4 text-primary shadow-sm"><i class="bi bi-search me-2"></i>ค้นหาหนังสือ</a>
-                        <a href="return_book.php" class="btn btn-success btn-lg fw-bold px-4 shadow-sm"><i class="bi bi-arrow-left-right me-2"></i>คืนหนังสือ</a>
+                        <a href="books.php" class="btn btn-light btn-lg fw-bold px-4 text-primary shadow-sm rounded-pill"><i class="bi bi-search me-2"></i>ค้นหาหนังสือ</a>
+                        <a href="return_book.php" class="btn btn-success btn-lg fw-bold px-4 shadow-sm rounded-pill"><i class="bi bi-arrow-left-right me-2"></i>คืนหนังสือ</a>
                     </div>
                 </div>
                 <div class="col-md-5 d-none d-md-block text-center">
@@ -134,18 +144,18 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
     </div>
 
     <?php if(isset($_SESSION['role']) && $_SESSION['role'] == 'admin') { ?>
-    <div class="alert alert-dark border-0 shadow-sm d-flex justify-content-between align-items-center p-3 mb-5" style="border-radius: 15px;">
+    <div class="alert alert-dark border-0 shadow-sm d-flex justify-content-between align-items-center p-3 mb-5 rounded-4">
         <span class="fw-bold"><i class="bi bi-shield-lock-fill me-2 text-warning"></i>ระบบจัดการสำหรับผู้ดูแลระบบ</span>
-        <a href="admin_dashboard.php" class="btn btn-warning btn-sm fw-bold rounded-pill px-3">ไปที่หน้าแอดมิน</a>
+        <a href="admin_dashboard.php" class="btn btn-warning btn-sm fw-bold rounded-pill px-4">เข้าสู่ระบบหลังบ้าน</a>
     </div>
     <?php } ?>
 
     <div class="d-flex justify-content-between align-items-end mb-4">
         <div>
             <h3 class="fw-bold m-0"><i class="bi bi-stars text-warning me-2"></i>หนังสือแนะนำ</h3>
-            <p class="text-muted m-0">สุ่มหนังสือที่น่าสนใจมาให้คุณได้อ่าน</p>
+            <p class="text-muted m-0 small">สุ่มหนังสือใหม่ๆ มาให้คุณเลือกอ่าน</p>
         </div>
-        <a href="books.php" class="btn btn-outline-primary fw-bold rounded-pill px-3 shadow-sm">ดูทั้งหมด</a>
+        <a href="books.php" class="text-decoration-none fw-bold">ดูทั้งหมด <i class="bi bi-chevron-right"></i></a>
     </div>
 
     <div class="row g-4">
@@ -153,7 +163,7 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
         if($result_recommend && mysqli_num_rows($result_recommend) > 0) {
             while($book = mysqli_fetch_assoc($result_recommend)) {
                 $is_available = ($book['status'] == 'available');
-                $status_text = $is_available ? 'ว่าง' : 'ถูกยืมแล้ว';
+                $status_text = $is_available ? 'ว่าง (ยืมได้)' : 'ถูกยืมแล้ว';
                 $status_color = $is_available ? 'bg-success' : 'bg-danger';
         ?>
         
@@ -164,12 +174,12 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
                 </div>
                 <div class="card-body d-flex flex-column">
                     <div class="mb-2">
-                        <span class="badge <?php echo $status_color; ?> rounded-pill px-2"><?php echo $status_text; ?></span>
+                        <span class="badge <?php echo $status_color; ?> rounded-pill px-3"><?php echo $status_text; ?></span>
                     </div>
                     <h6 class="card-title fw-bold text-truncate" title="<?php echo htmlspecialchars($book['book_name']); ?>">
                         <?php echo htmlspecialchars($book['book_name']); ?>
                     </h6>
-                    <p class="card-text text-muted small mb-3">โดย: <?php echo htmlspecialchars($book['author']); ?></p>
+                    <p class="card-text text-muted small mb-3">ผู้แต่ง: <?php echo htmlspecialchars($book['author']); ?></p>
                     
                     <div class="mt-auto">
                         <?php if($is_available) { ?>
@@ -185,7 +195,7 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
         <?php 
             }
         } else {
-            echo "<div class='col-12 text-center py-5'><i class='bi bi-inbox text-muted' style='font-size: 3rem;'></i><p class='text-muted mt-2'>ยังไม่มีข้อมูลหนังสือในขณะนี้</p></div>";
+            echo "<div class='col-12 text-center py-5'><i class='bi bi-inbox text-muted fs-1'></i><p class='text-muted mt-2'>ยังไม่มีข้อมูลหนังสือในระบบ</p></div>";
         }
         ?>
     </div>
@@ -193,17 +203,9 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
 </div>
 
 <footer class="bg-dark text-white py-4 mt-5">
-    <div class="container text-center text-md-start">
-        <div class="row align-items-center">
-            <div class="col-md-6 mb-2 mb-md-0">
-                <p class="mb-0 fw-bold">LibraryMobile System</p>
-                <p class="small opacity-50 mb-0">© 2026 ระบบจัดการห้องสมุดยุคใหม่ เพื่อการเรียนรู้</p>
-            </div>
-            <div class="col-md-6 text-md-end">
-                <a href="#" class="text-white opacity-50 me-3 text-decoration-none small">ข้อกำหนดการใช้งาน</a>
-                <a href="#" class="text-white opacity-50 text-decoration-none small">นโยบายความเป็นส่วนตัว</a>
-            </div>
-        </div>
+    <div class="container text-center">
+        <p class="mb-1 fw-bold">LibraryMobile System</p>
+        <p class="small opacity-50 mb-0">© 2026 ระบบจัดการห้องสมุดยุคใหม่ - พัฒนาโดยทีมงาน IT Support</p>
     </div>
 </footer>
 
