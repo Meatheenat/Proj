@@ -59,3 +59,6 @@ ADD publisher VARCHAR(100) NULL AFTER publish_year;
 ALTER TABLE books ADD COLUMN borrow_duration VARCHAR(50) DEFAULT '7,15,30';
 -- เพิ่มคอลัมน์สถานะ (active = ปกติ, banned = ถูกระงับการใช้งาน)
 ALTER TABLE users ADD COLUMN status ENUM('active', 'banned') DEFAULT 'active';
+ALTER TABLE users MODIFY COLUMN role VARCHAR(20);
+UPDATE users SET role = 'user' WHERE role != 'admin' OR role IS NULL;
+ALTER TABLE users MODIFY COLUMN role ENUM('user', 'admin') NOT NULL DEFAULT 'user';
