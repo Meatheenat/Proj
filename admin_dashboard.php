@@ -1,5 +1,5 @@
 <?php 
-// 1. เปิดโหมดดู Error (IT Support Style)
+// 1. เปิดโหมดดู Error เพื่อความชัวร์ (สไตล์ IT Support)
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -11,13 +11,13 @@ if(!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin'){
     exit();
 }
 
-include('config/db.php');
+include('config/db.php'); // เชื่อมต่อฐานข้อมูล
 
-// ดึงข้อมูลสมาชิกทั้งหมด
-$sql_members = "SELECT user_id, username, fullname, role FROM users ORDER BY user_id DESC";
+// ดึงข้อมูลสมาชิก (เพิ่มคอลัมน์ status สำหรับการแบน)
+$sql_members = "SELECT user_id, username, fullname, role, status FROM users ORDER BY user_id DESC";
 $res_members = mysqli_query($conn, $sql_members);
 
-// ดึงข้อมูลการยืมที่ยังไม่คืน (Status: pending)
+// ดึงข้อมูลการยืมที่ยังไม่คืน (Pending) พร้อมเช็ควันกำหนดคืน
 $sql_borrowed = "SELECT br.*, b.book_name, u.fullname 
                  FROM borrow_records br
                  JOIN books b ON br.book_id = b.book_id
@@ -45,20 +45,18 @@ $res_borrowed = mysqli_query($conn, $sql_borrowed);
     </script>
 
     <style>
-        /* --- นิยามตัวแปรสี Full Dark Mode --- */
+        /* --- ตัวแปรสี Full Dark Mode เปลี่ยนทั้งหน้า --- */
         [data-bs-theme="light"] {
             --bg-page: #f8f9fa;
             --bg-card: #ffffff;
             --text-color: #212529;
-            --input-bg: #ffffff;
-            --input-border: #dee2e6;
+            --border-color: #dee2e6;
         }
         [data-bs-theme="dark"] {
             --bg-page: #121212;
             --bg-card: #1e1e1e;
             --text-color: #f8f9fa;
-            --input-bg: #2b2b2b;
-            --input-border: #444444;
+            --border-color: #333333;
         }
 
         body { 
@@ -72,16 +70,13 @@ $res_borrowed = mysqli_query($conn, $sql_borrowed);
 
         .admin-card { 
             background-color: var(--bg-card) !important;
-            border-radius: 15px; 
-            border: none; 
+            border-radius: 15px; border: none; 
             box-shadow: 0 4px 20px rgba(0,0,0,0.1); 
         }
 
         .nav-tabs .nav-link { 
-            color: var(--text-color); 
-            font-weight: 600; 
-            border: none;
-            opacity: 0.6;
+            color: var(--text-color); font-weight: 600; 
+            border: none; opacity: 0.6;
         }
         .nav-tabs .nav-link.active { 
             color: var(--primary-color, #4e73df) !important; 
@@ -109,29 +104,27 @@ $res_borrowed = mysqli_query($conn, $sql_borrowed);
         <button class="btn btn-link text-white me-3 p-0" id="themeToggle" type="button">
             <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
         </button>
-        <span class="text-white me-3 d-none d-md-inline small opacity-75">ผู้ดูแล: <?php echo htmlspecialchars($_SESSION['fullname']); ?></span>
-        <a href="index.php" class="btn btn-outline-light btn-sm fw-bold rounded-pill px-3">กลับหน้าบ้าน</a>
+        <span class="text-white me-3 d-none d-md-inline small">แอดมิน: <?php echo htmlspecialchars($_SESSION['fullname']); ?></span>
+        <a href="index.php" class="btn btn-outline-light btn-sm rounded-pill px-3">กลับหน้าบ้าน</a>
     </div>
   </div>
 </nav>
 
 <div class="container mt-5 mb-5">
-    <div class="row align-items-center mb-4">
-        <div class="col">
-            <h2 class="fw-bold m-0 text-primary">การจัดการระบบหลังบ้าน</h2>
-            <p class="text-muted small">LibraryMobile Console v1.2</p>
-        </div>
+    <div class="mb-4">
+        <h2 class="fw-bold m-0 text-primary">การจัดการระบบหลังบ้าน</h2>
+        <p class="text-muted small">จัดการสมาชิก หนังสือ และรายการยืมคืนทั้งหมด</p>
     </div>
 
     <ul class="nav nav-tabs mb-4 border-0" id="adminTab" role="tablist">
         <li class="nav-item">
             <button class="nav-link active px-4 py-3" id="members-tab" data-bs-toggle="tab" data-bs-target="#members" type="button">
-                <i class="bi bi-people me-2"></i>ข้อมูลสมาชิก
+                <i class="bi bi-people me-2"></i>จัดการสมาชิก
             </button>
         </li>
         <li class="nav-item">
             <button class="nav-link px-4 py-3" id="addbook-tab" data-bs-toggle="tab" data-bs-target="#addbook" type="button">
-                <i class="bi bi-plus-circle me-2"></i>เพิ่มหนังสือใหม่
+                <i class="bi bi-plus-circle me-2"></i>เพิ่มหนังสือ
             </button>
         </li>
         <li class="nav-item">
@@ -146,31 +139,55 @@ $res_borrowed = mysqli_query($conn, $sql_borrowed);
         <div class="tab-pane fade show active" id="members" role="tabpanel">
             <div class="card admin-card shadow-sm">
                 <div class="card-body p-4">
-                    <h5 class="fw-bold mb-4"><i class="bi bi-person-lines-fill me-2 text-primary"></i>รายชื่อสมาชิกในระบบ</h5>
+                    <h5 class="fw-bold mb-4">รายชื่อสมาชิกในระบบ</h5>
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">
                             <thead class="table-dark">
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Username</th>
                                     <th>ชื่อ-นามสกุล</th>
-                                    <th>ตำแหน่ง</th>
-                                    <th class="text-center">จัดการ</th>
+                                    <th>บทบาท</th>
+                                    <th>สถานะ</th>
+                                    <th class="text-center">เปลี่ยนบทบาท</th>
+                                    <th class="text-center">การจัดการ</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php while($user = mysqli_fetch_assoc($res_members)) { ?>
+                                <?php while($user = mysqli_fetch_assoc($res_members)) { 
+                                    $is_banned = ($user['status'] == 'banned');
+                                ?>
                                 <tr>
-                                    <td><?php echo $user['user_id']; ?></td>
-                                    <td class="fw-bold"><?php echo htmlspecialchars($user['username']); ?></td>
-                                    <td><?php echo htmlspecialchars($user['fullname']); ?></td>
+                                    <td>
+                                        <div class="fw-bold"><?php echo htmlspecialchars($user['fullname']); ?></div>
+                                        <small class="text-muted">@<?php echo htmlspecialchars($user['username']); ?></small>
+                                    </td>
                                     <td>
                                         <span class="badge rounded-pill <?php echo ($user['role'] == 'admin') ? 'bg-danger' : 'bg-primary'; ?>">
                                             <?php echo strtoupper($user['role']); ?>
                                         </span>
                                     </td>
+                                    <td>
+                                        <span class="badge rounded-pill <?php echo $is_banned ? 'bg-secondary' : 'bg-success'; ?>">
+                                            <?php echo $is_banned ? 'ถูกแบน' : 'ปกติ'; ?>
+                                        </span>
+                                    </td>
                                     <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-secondary rounded-circle"><i class="bi bi-pencil-square"></i></button>
+                                        <form action="manage_user_action.php" method="POST" class="d-inline">
+                                            <input type="hidden" name="user_id" value="<?php echo $user['user_id']; ?>">
+                                            <select name="new_role" class="form-select form-select-sm d-inline-block w-auto" onchange="this.form.submit()">
+                                                <option value="user" <?php if($user['role'] == 'user') echo 'selected'; ?>>User</option>
+                                                <option value="admin" <?php if($user['role'] == 'admin') echo 'selected'; ?>>Admin</option>
+                                            </select>
+                                            <input type="hidden" name="action" value="update_role">
+                                        </form>
+                                    </td>
+                                    <td class="text-center">
+                                        <?php if($user['user_id'] != $_SESSION['user_id']) { ?>
+                                            <a href="manage_user_action.php?id=<?php echo $user['user_id']; ?>&action=toggle_status&status=<?php echo $user['status']; ?>" 
+                                               class="btn btn-sm <?php echo $is_banned ? 'btn-outline-success' : 'btn-outline-danger'; ?> fw-bold rounded-pill px-3"
+                                               onclick="return confirm('ยืนยันการเปลี่ยนสถานะสมาชิก?')">
+                                                <?php echo $is_banned ? 'ปลดแบน' : 'แบน'; ?>
+                                            </a>
+                                        <?php } ?>
                                     </td>
                                 </tr>
                                 <?php } ?>
@@ -182,40 +199,34 @@ $res_borrowed = mysqli_query($conn, $sql_borrowed);
         </div>
 
         <div class="tab-pane fade" id="addbook" role="tabpanel">
-            <div class="card admin-card mx-auto shadow-sm" style="max-width: 650px;">
+            <div class="card admin-card mx-auto shadow-sm" style="max-width: 600px;">
                 <div class="card-body p-4 p-md-5">
-                    <div class="text-center mb-4">
-                        <i class="bi bi-plus-circle-fill text-primary" style="font-size: 3rem;"></i>
-                        <h4 class="fw-bold mt-2">เพิ่มหนังสือใหม่เข้าระบบ</h4>
-                    </div>
+                    <h4 class="fw-bold mb-4 text-center">เพิ่มหนังสือใหม่</h4>
                     <form action="add_book_action.php" method="POST">
                         <div class="mb-3">
                             <label class="form-label fw-bold small">ชื่อหนังสือ</label>
-                            <input type="text" name="book_name" class="form-control form-control-lg" placeholder="ระบุชื่อหนังสือ" required>
+                            <input type="text" name="book_name" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small">ชื่อผู้แต่ง</label>
+                            <input type="text" name="author" class="form-control" required>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold small">ชื่อผู้แต่ง</label>
-                                <input type="text" name="author" class="form-control form-control-lg" placeholder="ชื่อผู้แต่ง" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold small">หมวดหมู่</label>
-                                <select name="category" class="form-select form-select-lg">
+                                <select name="category" class="form-select">
+                                    <option value="ทั่วไป">ทั่วไป</option>
                                     <option value="นิยาย">นิยาย</option>
                                     <option value="วิชาการ">วิชาการ</option>
                                     <option value="การ์ตูน">การ์ตูน</option>
-                                    <option value="ทั่วไป">ทั่วไป</option>
                                 </select>
                             </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold small">กำหนดวันยืม (คั่นด้วยคอมม่า)</label>
+                                <input type="text" name="borrow_duration" class="form-control" value="7,15,30">
+                            </div>
                         </div>
-                        <div class="mb-4">
-                            <label class="form-label fw-bold small">จำนวนวันที่อนุญาตให้ยืม (คั่นด้วยคอมม่า)</label>
-                            <input type="text" name="borrow_duration" class="form-control form-control-lg" value="7,10,15,30" placeholder="เช่น 7,15,30">
-                            <div class="form-text small opacity-50">ตัวเลือกที่สมาชิกจะเห็นตอนกดยืมหนังสือ</div>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm rounded-pill py-3">
-                            <i class="bi bi-check-circle me-2"></i>ยืนยันการเพิ่มหนังสือ
-                        </button>
+                        <button type="submit" class="btn btn-primary w-100 fw-bold rounded-pill py-2 mt-3">บันทึกข้อมูลหนังสือ</button>
                     </form>
                 </div>
             </div>
@@ -224,16 +235,16 @@ $res_borrowed = mysqli_query($conn, $sql_borrowed);
         <div class="tab-pane fade" id="borrowed" role="tabpanel">
             <div class="card admin-card shadow-sm">
                 <div class="card-body p-4">
-                    <h5 class="fw-bold mb-4 text-warning"><i class="bi bi-clock-history me-2"></i>รายการที่รอดำเนินการคืน</h5>
+                    <h5 class="fw-bold mb-4 text-warning">รายการหนังสือที่รอดำเนินการคืน</h5>
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">
                             <thead class="table-dark">
                                 <tr>
                                     <th>ผู้ยืม</th>
-                                    <th>หนังสือ</th>
+                                    <th>ชื่อหนังสือ</th>
                                     <th>วันที่ยืม</th>
                                     <th>กำหนดคืน</th>
-                                    <th class="text-center">การจัดการ</th>
+                                    <th class="text-center">จัดการ</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -242,26 +253,21 @@ $res_borrowed = mysqli_query($conn, $sql_borrowed);
                                           $is_overdue = (date('Y-m-d') > $row['due_date']);
                                 ?>
                                 <tr>
-                                    <td>
-                                        <div class="fw-bold"><?php echo htmlspecialchars($row['fullname']); ?></div>
-                                        <small class="text-muted">Member ID: <?php echo $row['user_id']; ?></small>
-                                    </td>
+                                    <td><?php echo htmlspecialchars($row['fullname']); ?></td>
                                     <td><?php echo htmlspecialchars($row['book_name']); ?></td>
                                     <td><?php echo date('d/m/Y', strtotime($row['borrow_date'])); ?></td>
                                     <td class="<?php echo $is_overdue ? 'text-danger fw-bold' : ''; ?>">
                                         <?php echo date('d/m/Y', strtotime($row['due_date'])); ?>
-                                        <?php echo $is_overdue ? '<i class="bi bi-exclamation-circle ms-1"></i>' : ''; ?>
+                                        <?php echo $is_overdue ? ' (เกินกำหนด)' : ''; ?>
                                     </td>
                                     <td class="text-center">
                                         <a href="return_action.php?id=<?php echo $row['borrow_id']; ?>" 
-                                           class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm" 
-                                           onclick="return confirm('ยืนยันว่าสมาชิกคืนหนังสือเล่มนี้แล้วใช่หรือไม่?')">
-                                           รับคืนสำเร็จ
-                                        </a>
+                                           class="btn btn-sm btn-success rounded-pill px-3" 
+                                           onclick="return confirm('รับคืนหนังสือเล่มนี้?')">รับคืน</a>
                                     </td>
                                 </tr>
                                 <?php } } else { ?>
-                                <tr><td colspan="5" class="text-center py-5 text-muted">ขณะนี้ไม่มีหนังสือที่ถูกยืมอยู่</td></tr>
+                                <tr><td colspan="5" class="text-center py-5 text-muted">ไม่มีรายการค้างส่ง</td></tr>
                                 <?php } ?>
                             </tbody>
                         </table>
@@ -273,7 +279,7 @@ $res_borrowed = mysqli_query($conn, $sql_borrowed);
     </div>
 </div>
 
-[Image of an administrative dashboard UI with data tables and form elements in a clean dark theme layout]
+[Image of administrative dashboard UI with user tables and book entry forms in a clean dark theme layout]
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -292,7 +298,6 @@ document.addEventListener('DOMContentLoaded', function() {
             themeIcon.style.color = '#ffffff';
         }
     }
-
     updateIcon(htmlElement.getAttribute('data-bs-theme'));
 
     if (themeToggle) {
@@ -306,6 +311,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-
 </body>
 </html>

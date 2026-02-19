@@ -57,3 +57,5 @@ ADD publish_year VARCHAR(4) NULL AFTER category,
 ADD publisher VARCHAR(100) NULL AFTER publish_year;
 -- เพิ่มคอลัมน์เก็บวันที่กำหนด (เช่น เก็บเป็นข้อความ "7,10,15,30")
 ALTER TABLE books ADD COLUMN borrow_duration VARCHAR(50) DEFAULT '7,15,30';
+-- เพิ่มคอลัมน์สถานะ (active = ปกติ, banned = ถูกระงับการใช้งาน)
+ALTER TABLE users ADD COLUMN status ENUM('active', 'banned') DEFAULT 'active';
