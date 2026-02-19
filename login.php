@@ -40,6 +40,30 @@
         </div>
     </div>
 </div>
-
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const togglePasswordButtons = document.querySelectorAll('.toggle-password');
+        
+        togglePasswordButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // หาช่องกรอกรหัสผ่านที่ปุ่มนี้คุมอยู่
+                const targetId = this.getAttribute('data-target');
+                const inputField = document.getElementById(targetId);
+                const icon = this.querySelector('i');
+                
+                // สลับประเภทของช่องกรอก และเปลี่ยนรูปลูกตา
+                if (inputField.type === 'password') {
+                    inputField.type = 'text'; // โชว์รหัสผ่าน
+                    icon.classList.remove('bi-eye-slash');
+                    icon.classList.add('bi-eye');
+                } else {
+                    inputField.type = 'password'; // ซ่อนรหัสผ่าน
+                    icon.classList.remove('bi-eye');
+                    icon.classList.add('bi-eye-slash');
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>
