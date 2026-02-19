@@ -55,3 +55,5 @@ ALTER TABLE users ADD email VARCHAR(100) NOT NULL AFTER fullname;
 ALTER TABLE books 
 ADD publish_year VARCHAR(4) NULL AFTER category,
 ADD publisher VARCHAR(100) NULL AFTER publish_year;
+-- เพิ่มคอลัมน์เก็บวันที่กำหนด (เช่น เก็บเป็นข้อความ "7,10,15,30")
+ALTER TABLE books ADD COLUMN borrow_duration VARCHAR(50) DEFAULT '7,15,30';
