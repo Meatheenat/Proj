@@ -62,3 +62,4 @@ ALTER TABLE users ADD COLUMN status ENUM('active', 'banned') DEFAULT 'active';
 ALTER TABLE users MODIFY COLUMN role VARCHAR(20);
 UPDATE users SET role = 'user' WHERE role != 'admin' OR role IS NULL;
 ALTER TABLE users MODIFY COLUMN role ENUM('user', 'admin') NOT NULL DEFAULT 'user';
+ALTER TABLE books ADD COLUMN book_image VARCHAR(255) DEFAULT NULL;
