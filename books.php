@@ -105,7 +105,7 @@ $cat_result = mysqli_query($conn, $cat_sql);
 
         .book-placeholder {
             height: 160px;
-            background: #2a2a2a;
+            background: #ffffff;
             border-radius: 12px 12px 0 0;
             display: flex; align-items: center; justify-content: center;
             font-size: 3rem; color: #444;
