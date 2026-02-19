@@ -1,8 +1,9 @@
 <?php 
 session_start(); 
-// ตรวจสอบว่าถ้า Login อยู่แล้ว ให้เด้งกลับไปหน้าแรกทันที (UX ที่ดี)
-if(isset($_SESSION['user_id'])){
-    header("Location: index.php");
+
+// สำคัญ: สำหรับหน้า index ต้องเช็คว่า "ถ้ายังไม่ได้ Login" ให้ไล่กลับไปหน้า login.php
+if(!isset($_SESSION['user_id'])){
+    header("Location: login.php");
     exit();
 }
 ?>
@@ -11,68 +12,73 @@ if(isset($_SESSION['user_id'])){
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>เข้าสู่ระบบ - ระบบยืมคืนหนังสือ</title>
+    <title>หน้าแรก - ระบบยืมคืนหนังสือ</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/style.css">
     
     <style>
-        /* จัดตำแหน่งฟอร์มให้อยู่กึ่งกลางจอภาพเสมอ */
-        .login-wrapper {
-            min-height: calc(100vh - 56px); /* ความสูงหน้าจอ ลบ ความสูง Navbar */
+        body { font-family: 'Sarabun', sans-serif; background-color: #f8f9fa; }
+        /* สไตล์ Card กลางจอ อิงจาก login-card ของคุณ */
+        .dashboard-wrapper {
+            min-height: calc(100vh - 56px);
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
         }
-        .login-card {
+        .dashboard-card {
             width: 100%;
-            max-width: 400px; /* ขนาดกำลังดีบนมือถือและแท็บเล็ต */
-            padding: 2.5rem 2rem;
+            max-width: 600px; /* ให้กว้างกว่าหน้า Login นิดหน่อย */
+            padding: 3rem 2rem;
             background-color: #ffffff;
             border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08); /* เงาแบบนุ่มนวล */
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         }
     </style>
 </head>
-<body class="bg-light">
+<body>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container">
-    <a class="navbar-brand" href="index.php">LibraryMobile</a>
-    <div class="ms-auto text-white">
-        <a href='index.php' class='btn btn-outline-light btn-sm'>กลับหน้าแรก</a>
+    <a class="navbar-brand fw-bold" href="index.php">LibraryMobile</a>
+    <div class="ms-auto text-white d-flex align-items-center">
+        <span class="me-3 d-none d-sm-inline">สวัสดี, <?php echo htmlspecialchars($_SESSION['fullname']); ?></span>
+        <a href='logout.php' class='btn btn-outline-danger btn-sm fw-bold'>ออกจากระบบ</a>
     </div>
   </div>
 </nav>
 
-<div class="container login-wrapper">
-    <div class="login-card">
-        <div class="text-center mb-4">
-            <h2 class="fw-bold text-primary">เข้าสู่ระบบ</h2>
-            <p class="text-muted small">กรุณากรอกชื่อผู้ใช้งานและรหัสผ่าน</p>
-        </div>
+<div class="container dashboard-wrapper">
+    <div class="dashboard-card text-center">
+        <h1 class="fw-bold text-primary mb-3">ยินดีต้อนรับสู่ระบบห้องสมุด</h1>
+        <p class="text-muted mb-5">คุณสามารถค้นหาหนังสือและทำรายการยืม-คืนได้ที่นี่</p>
         
-        <form action="auth_action.php" method="POST" id="loginForm">
-            <div class="mb-3">
-                <label for="username" class="form-label fw-semibold">ชื่อผู้ใช้งาน (Username)</label>
-                <input type="text" name="username" id="username" class="form-control form-control-lg" placeholder="กรอกชื่อผู้ใช้งาน" required autofocus>
+        <div class="row g-3">
+            <div class="col-12 col-md-6">
+                <a href="books.php" class="btn btn-primary btn-lg w-100 py-3 fw-bold">
+                    📚 รายการหนังสือ
+                </a>
+            </div>
+            <div class="col-12 col-md-6">
+                <a href="history.php" class="btn btn-outline-secondary btn-lg w-100 py-3 fw-bold">
+                    🕒 ประวัติการยืม-คืน
+                </a>
             </div>
             
-            <div class="mb-4">
-                <label for="password" class="form-label fw-semibold">รหัสผ่าน (Password)</label>
-                <input type="password" name="password" id="password" class="form-control form-control-lg" placeholder="กรอกรหัสผ่าน" required>
+            <?php 
+            // พิเศษ: ถ้าเป็น Admin ให้เห็นเมนูจัดการระบบด้วย
+            if(isset($_SESSION['role']) && $_SESSION['role'] == 'admin') { 
+            ?>
+            <div class="col-12 mt-3">
+                <hr>
+                <a href="admin_dashboard.php" class="btn btn-dark w-100 py-2 fw-bold">
+                    ⚙️ จัดการระบบ (Admin)
+                </a>
             </div>
-            
-            <button type="submit" name="login" class="btn btn-primary btn-lg w-100 mb-3 fw-bold">เข้าสู่ระบบ</button>
-            
-            <div class="text-center mt-3">
-                <p class="mb-1 text-muted">ยังไม่มีบัญชีใช่หรือไม่? <a href="register.php" class="text-decoration-none fw-bold">สมัครสมาชิกที่นี่</a></p>
-                <a href="forgot_password.php" class="text-decoration-none text-danger small">ลืมรหัสผ่าน?</a>
-            </div>
-        </form>
+            <?php } ?>
+        </div>
     </div>
 </div>
 
