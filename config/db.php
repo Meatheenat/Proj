@@ -1,5 +1,5 @@
 <?php
-$host = "https://hosting.bncc.ac.th/";
+$host = "localhost";
 $user = "s673190104";
 $pass = "s673190104";
 $dbname = "s673190104";
