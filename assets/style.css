@@ -1,108 +1,106 @@
-/* Custom Styles for Library System */
+/* 1. Global Variables - ประกาศที่เดียวจบ */
 :root {
-    --primary-color: #4e73df;
-    --secondary-color: #858796;
-    --success-color: #1cc88a;
-    /* Light Mode Variables */
-    --bg-main: #f8f9fc;
-    --card-bg: #ffffff;
+    /* Main Colors */
+    --primary: #4e73df;
+    --primary-hover: #2e59d9;
+    --success: #1cc88a;
+    --warning: #f6c23e;
+    --danger: #e74a3b;
+    
+    /* Light Mode Colors */
+    --bg-body: #f8f9fc;
+    --bg-card: #ffffff;
     --text-main: #333333;
+    --text-muted: #858796;
     --nav-bg: #212529;
+    --input-border: #d1d3e2;
+    --shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
 }
 
-/* Dark Mode Variables */
+/* 2. Dark Mode Overrides - สลับค่าตัวแปรเมื่อ html มี data-bs-theme="dark" */
 [data-bs-theme="dark"] {
-    --bg-main: #121212;
-    --card-bg: #1e1e1e;
+    --bg-body: #121212;
+    --bg-card: #1e1e1e;
     --text-main: #e0e0e0;
+    --text-muted: #a0a0a0;
     --nav-bg: #000000;
+    --input-border: #444444;
+    --shadow: 0 0.5rem 2rem 0 rgba(0, 0, 0, 0.5);
 }
 
+/* 3. Base Styles */
 body {
     font-family: 'Sarabun', sans-serif;
-    background-color: var(--bg-main) !important;
+    background-color: var(--bg-body) !important;
     color: var(--text-main) !important;
-    transition: background-color 0.3s, color 0.3s;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    min-height: 100vh;
 }
 
-.card, .dashboard-card, .login-card, .register-card, .table-card {
-    background-color: var(--card-bg) !important;
+/* 4. Components - Card & Layout */
+.card, .login-card, .register-card, .dashboard-card, .table-card {
+    background-color: var(--bg-card) !important;
     color: var(--text-main) !important;
-    border: none;
-    border-radius: 12px;
-    box-shadow: 0 0.15rem 1.75rem 0 rgba(0, 0, 0, 0.1);
+    border: none !important;
+    border-radius: 16px; /* มนขึ้นให้ดูทันสมัย */
+    box-shadow: var(--shadow);
+    transition: transform 0.2s ease, background-color 0.3s ease;
 }
 
+/* 5. Buttons - ปรับให้ดูพรีเมียม */
 .btn {
-    border-radius: 8px;
-    padding: 10px 20px;
+    border-radius: 10px;
+    padding: 12px 24px;
     font-weight: 600;
-    transition: all 0.3s;
+    transition: all 0.2s ease;
+    border: none;
 }
 
 .btn-primary {
-    background-color: var(--primary-color);
-    border: none;
+    background-color: var(--primary) !important;
 }
 
-[data-bs-theme="dark"] .text-muted {
-    color: #b0b0b0 !important;
+.btn-primary:hover {
+    background-color: var(--primary-hover) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(78, 115, 223, 0.4);
 }
-/* เพิ่มเติมจาก CSS เดิม */
-.custom-nav {
+
+/* 6. Form Inputs - ปรับให้รองรับ Dark Mode */
+.form-control {
+    background-color: var(--bg-card) !important;
+    border: 1px solid var(--input-border) !important;
+    color: var(--text-main) !important;
+    border-radius: 10px;
+    padding: 12px;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.25);
+    border-color: var(--primary) !important;
+}
+
+/* 7. Navbar - ปรับแต่งใหม่ */
+.navbar.bg-dark {
     background-color: var(--nav-bg) !important;
-    transition: background-color 0.3s;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
-/* ปรับให้ข้อความใน Navbar เป็นสีขาวเสมอ หรือเปลี่ยนตามธีม */
-.custom-nav .navbar-brand, 
-.custom-nav .nav-link {
-    color: #ffffff !important;
+[data-bs-theme="dark"] .navbar.bg-dark {
+    border-bottom: 1px solid #333;
 }
 
-[data-bs-theme="dark"] .custom-nav {
-    border-bottom: 1px solid #333; /* เพิ่มเส้นคั่นนิดหน่อยใน Dark mode */
-}/* --- ส่วนของมึงที่ส่งมา (รวมเข้าด้วยกัน) --- */
-:root {
-    --primary-color: #4e73df;
-    --secondary-color: #858796;
-    --success-color: #1cc88a;
-    --bg-light: #f8f9fc;
-    /* ตัวแปรสีสลับธีม (Light Mode) */
-    --bg-main: #f8f9fa;
-    --card-bg: #ffffff;
-    --text-main: #333333;
-    --nav-bg: #212529;
+/* 8. Utilities */
+.text-muted {
+    color: var(--text-muted) !important;
 }
 
-/* ส่วนสลับเป็น Dark Mode */
-[data-bs-theme="dark"] {
-    --bg-main: #121212;
-    --card-bg: #1e1e1e;
-    --text-main: #e0e0e0;
-    --nav-bg: #000000;
+/* Mobile Responsive */
+@media (max-width: 576px) {
+    .card {
+        margin: 10px;
+    }
+    .btn {
+        width: 100%; /* ปุ่มเต็มจอในมือถือ */
+    }
 }
-
-body {
-    font-family: 'Sarabun', sans-serif;
-    /* บังคับใช้ตัวแปรสลับสี */
-    background-color: var(--bg-main) !important;
-    color: var(--text-main) !important;
-    transition: background-color 0.3s, color 0.3s;
-}
-
-/* บังคับสี Card ให้เปลี่ยนตามตัวแปร */
-.card, .login-card {
-    background-color: var(--card-bg) !important;
-    color: var(--text-main) !important;
-    border: none;
-    border-radius: 12px;
-    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
-}
-
-/* โค้ดที่เหลือของมึงอยู่ครบ */
-.btn { border-radius: 8px; padding: 10px 20px; font-weight: 600; transition: all 0.3s; }
-.btn-primary { background-color: var(--primary-color); border: none; }
-.btn-primary:hover { background-color: #2e59d9; transform: translateY(-1px); }
-[data-bs-theme="dark"] .text-muted { color: #b0b0b0 !important; }
-@media (max-width: 576px) { .login-card { margin: 20px; } }
