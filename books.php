@@ -1,5 +1,5 @@
 <?php 
-// 1. เปิดโหมดดู Error (IT Support Style)
+// 1. เปิดโหมดดู Error เพื่อความชัวร์ในการเช็คระบบ
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -9,9 +9,9 @@ if(!isset($_SESSION['user_id'])){
     header("Location: login.php");
     exit();
 }
-include('config/db.php');
+include('config/db.php'); // เรียกใช้ตามโครงสร้างไฟล์ของเพื่อน
 
-// 2. ระบบนับจำนวนแจ้งเตือนหนังสือเกินกำหนด (สำหรับแสดงที่กระดิ่ง Navbar)
+// 2. ระบบนับแจ้งเตือนหนังสือเกินกำหนด (สำหรับไอคอนกระดิ่งบน Navbar)
 $today = date('Y-m-d');
 $user_id = $_SESSION['user_id'];
 $sql_noti = "SELECT COUNT(*) as total FROM borrow_records 
@@ -20,14 +20,13 @@ $res_noti = mysqli_query($conn, $sql_noti);
 $noti_count = ($res_noti) ? mysqli_fetch_assoc($res_noti)['total'] : 0;
 
 // ==========================================
-// ระบบค้นหาและตัวกรอง (Search & Filter Logic)
+// ระบบค้นหาและตัวกรอง (Keep Logic เดิมของเพื่อน)
 // ==========================================
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 $category = isset($_GET['category']) ? mysqli_real_escape_string($conn, $_GET['category']) : '';
 $status = isset($_GET['status']) ? mysqli_real_escape_string($conn, $_GET['status']) : '';
 
 $sql = "SELECT * FROM books WHERE 1=1";
-
 if($search != ''){
     $sql .= " AND (book_name LIKE '%$search%' 
               OR author LIKE '%$search%' 
@@ -35,19 +34,12 @@ if($search != ''){
               OR publisher LIKE '%$search%'
               OR publish_year LIKE '%$search%')";
 }
-
-if($category != ''){
-    $sql .= " AND category = '$category'";
-}
-
-if($status != ''){
-    $sql .= " AND status = '$status'";
-}
+if($category != ''){ $sql .= " AND category = '$category'"; }
+if($status != ''){ $sql .= " AND status = '$status'"; }
 
 $sql .= " ORDER BY book_id DESC";
 $result = mysqli_query($conn, $sql);
 
-// ดึงรายชื่อหมวดหมู่ไม่ซ้ำกันมาทำ Dropdown
 $cat_sql = "SELECT DISTINCT category FROM books WHERE category IS NOT NULL AND category != ''";
 $cat_result = mysqli_query($conn, $cat_sql);
 ?>
@@ -61,8 +53,8 @@ $cat_result = mysqli_query($conn, $cat_sql);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="assets/style.css">
-    
+    <link rel="stylesheet" href="assets/style.css"> 
+
     <script>
         (function() {
             const savedTheme = localStorage.getItem('theme') || 'light';
@@ -71,7 +63,7 @@ $cat_result = mysqli_query($conn, $cat_sql);
     </script>
 
     <style>
-        /* --- นิยามตัวแปรสี Full Dark Mode --- */
+        /* --- นิยามตัวแปรสี Full Dark Mode เปลี่ยนทั้งหน้า --- */
         [data-bs-theme="light"] {
             --bg-page: #f8f9fa;
             --bg-card: #ffffff;
@@ -80,8 +72,8 @@ $cat_result = mysqli_query($conn, $cat_sql);
             --input-border: #dee2e6;
         }
         [data-bs-theme="dark"] {
-            --bg-page: #121212;
-            --bg-card: #1e1e1e;
+            --bg-page: #121212;      /* ดำสนิททั้งหน้า */
+            --bg-card: #1e1e1e;      /* การ์ดและกล่องค้นหาสีเข้ม */
             --text-color: #f8f9fa;
             --input-bg: #2b2b2b;
             --input-border: #444444;
@@ -92,18 +84,19 @@ $cat_result = mysqli_query($conn, $cat_sql);
             color: var(--text-color) !important;
             font-family: 'Sarabun', sans-serif; 
             transition: all 0.3s ease;
+            min-height: 100vh;
         }
 
         .navbar { background-color: #212529 !important; }
 
-        /* Search Box ให้เปลี่ยนสีตามธีม */
+        /* กล่องค้นหา (Search Box) ให้ลอยและเปลี่ยนสีตามธีม */
         .search-box {
             background-color: var(--bg-card) !important;
             color: var(--text-color) !important;
             padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
-            margin-top: -40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+            margin-top: -50px;
             position: relative;
             z-index: 10;
         }
@@ -130,15 +123,12 @@ $cat_result = mysqli_query($conn, $cat_sql);
             height: 180px;
             background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);
             color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3.5rem;
-            border-radius: 15px 15px 0 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 3.5rem; border-radius: 15px 15px 0 0;
         }
         [data-bs-theme="dark"] .book-cover-placeholder {
             background: linear-gradient(135deg, #2a2a2a 0%, #444 100%);
-            opacity: 0.8;
+            opacity: 0.7;
         }
     </style>
 </head>
@@ -147,7 +137,7 @@ $cat_result = mysqli_query($conn, $cat_sql);
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top pb-5 shadow-sm">
   <div class="container">
     <a class="navbar-brand fw-bold" href="index.php">
-        <i class="bi bi-arrow-left me-2 text-primary"></i>LibraryMobile
+        <i class="bi bi-book-half me-2 text-primary"></i>LibraryMobile
     </a>
     
     <div class="ms-auto d-flex align-items-center">
@@ -209,19 +199,16 @@ $cat_result = mysqli_query($conn, $cat_sql);
                     </select>
                 </div>
                 
-                <div class="col-12 col-md-2 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary w-100 fw-bold rounded-pill">ค้นหา</button>
-                    <?php if($search != '' || $category != '' || $status != '') { ?>
-                        <a href="books.php" class="btn btn-outline-danger rounded-circle" title="ล้างการค้นหา"><i class="bi bi-arrow-counterclockwise"></i></a>
-                    <?php } ?>
+                <div class="col-12 col-md-2">
+                    <button type="submit" class="btn btn-primary w-100 fw-bold rounded-pill py-2">ค้นหา</button>
                 </div>
             </div>
         </form>
     </div>
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="fw-bold m-0"><i class="bi bi-journal-text me-2"></i>รายการหนังสือ</h4>
-        <span class="badge bg-primary rounded-pill px-3 py-2 shadow-sm">พบข้อมูล <?php echo mysqli_num_rows($result); ?> เล่ม</span>
+        <h4 class="fw-bold m-0">ผลการค้นหา</h4>
+        <span class="badge bg-primary rounded-pill px-3 py-2 shadow-sm">พบ <?php echo mysqli_num_rows($result); ?> เล่ม</span>
     </div>
 
     <div class="row g-4">
@@ -229,32 +216,20 @@ $cat_result = mysqli_query($conn, $cat_sql);
         if(mysqli_num_rows($result) > 0) {
             while($book = mysqli_fetch_assoc($result)) {
                 $is_avail = ($book['status'] == 'available');
-                $status_text = $is_avail ? 'ว่าง (ยืมได้)' : 'ถูกยืมแล้ว';
                 $status_color = $is_avail ? 'bg-success' : 'bg-danger';
         ?>
-        
         <div class="col-6 col-md-4 col-lg-3">
-            <div class="card book-card h-100 shadow-sm border-0">
-                <div class="book-cover-placeholder">
-                    <i class="bi bi-book"></i>
-                </div>
+            <div class="card book-card h-100 border-0">
+                <div class="book-cover-placeholder"><i class="bi bi-book"></i></div>
                 <div class="card-body d-flex flex-column p-3">
-                    <div class="mb-2">
-                        <span class="badge <?php echo $status_color; ?> rounded-pill px-2"><?php echo $status_text; ?></span>
-                    </div>
+                    <div class="mb-2"><span class="badge <?php echo $status_color; ?> rounded-pill px-2"><?php echo $is_avail ? 'ว่าง' : 'ถูกยืม'; ?></span></div>
                     <h6 class="card-title fw-bold text-truncate mb-1" title="<?php echo htmlspecialchars($book['book_name']); ?>">
                         <?php echo htmlspecialchars($book['book_name']); ?>
                     </h6>
                     <p class="card-text opacity-75 small mb-2"><i class="bi bi-person me-1"></i><?php echo htmlspecialchars($book['author']); ?></p>
-                    
-                    <div class="small opacity-50 mb-3 mt-1" style="font-size: 0.75rem;">
-                        <i class="bi bi-tags me-1"></i><?php echo htmlspecialchars($book['category']); ?><br>
-                        <?php if(!empty($book['publish_year'])) { echo "<i class='bi bi-calendar3 me-1'></i>" . htmlspecialchars($book['publish_year']); } ?>
-                    </div>
-                    
                     <div class="mt-auto">
                         <?php if($is_avail) { ?>
-                            <a href="borrow.php?id=<?php echo $book['book_id']; ?>" class="btn btn-primary btn-sm w-100 fw-bold rounded-pill shadow-sm">ขอยืมเล่มนี้</a>
+                            <a href="borrow.php?id=<?php echo $book['book_id']; ?>" class="btn btn-primary btn-sm w-100 fw-bold rounded-pill shadow-sm">ยืมเล่มนี้</a>
                         <?php } else { ?>
                             <button class="btn btn-secondary btn-sm w-100 fw-bold rounded-pill opacity-50" disabled>ไม่ว่าง</button>
                         <?php } ?>
@@ -262,26 +237,13 @@ $cat_result = mysqli_query($conn, $cat_sql);
                 </div>
             </div>
         </div>
-
-        <?php 
-            }
-        } else {
-            echo "<div class='col-12 text-center py-5'>
-                    <i class='bi bi-search text-muted fs-1'></i>
-                    <p class='text-muted mt-3 fs-5'>ไม่พบข้อมูลหนังสือที่คุณค้นหา</p>
-                    <a href='books.php' class='btn btn-outline-primary rounded-pill px-4'>ดูหนังสือทั้งหมด</a>
-                  </div>";
-        }
-        ?>
+        <?php } } else { ?>
+            <div class='col-12 text-center py-5'><i class='bi bi-search text-muted fs-1'></i><p class='text-muted mt-2'>ไม่พบข้อมูลหนังสือ</p></div>
+        <?php } ?>
     </div>
-
 </div>
 
-<footer class="text-center py-4 mt-5 opacity-50">
-    <p class="small">LibraryMobile Inventory © 2026</p>
-</footer>
-
-
+<footer class="text-center py-4 mt-5 opacity-50"><p class="small">LibraryMobile System © 2026</p></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -300,15 +262,12 @@ document.addEventListener('DOMContentLoaded', function() {
             themeIcon.style.color = '#ffffff';
         }
     }
-
-    // เซ็ตธีมเริ่มต้น
     updateIcon(htmlElement.getAttribute('data-bs-theme'));
 
     if (themeToggle) {
         themeToggle.addEventListener('click', function() {
             const currentTheme = htmlElement.getAttribute('data-bs-theme');
             const newTheme = (currentTheme === 'light') ? 'dark' : 'light';
-            
             htmlElement.setAttribute('data-bs-theme', newTheme);
             localStorage.setItem('theme', newTheme);
             updateIcon(newTheme);
@@ -316,6 +275,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-
 </body>
 </html>
