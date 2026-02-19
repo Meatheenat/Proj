@@ -1,3 +1,11 @@
+<?php
+session_start();
+// ถ้ามีการล็อกอินค้างไว้แล้ว ให้เด้งไปหน้า index.php ทันที
+if(isset($_SESSION['user_id'])) {
+    header("Location: index.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -17,61 +25,74 @@
     </script>
 
     <style>
-        .login-wrapper {
-            min-height: calc(100vh - 56px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        /* เพิ่ม Transition ให้สีค่อยๆ เปลี่ยน */
         body {
             transition: background-color 0.3s ease, color 0.3s ease;
         }
+        .login-wrapper {
+            min-height: calc(100vh - 60px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        /* บังคับให้ Card เปลี่ยนสีตามธีมแม้ CSS หลักจะหาไม่เจอ */
+        [data-bs-theme="dark"] body { background-color: #121212; color: #eee; }
+        [data-bs-theme="dark"] .card { background-color: #1e1e1e; color: #eee; border-color: #333; }
     </style>
 </head>
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
   <div class="container">
-    <a class="navbar-brand fw-bold" href="index.php">LibraryMobile</a>
+    <a class="navbar-brand fw-bold" href="index.php"><i class="bi bi-book-half me-2"></i>LibraryMobile</a>
     <div class="ms-auto d-flex align-items-center">
         <button class="btn btn-link text-white me-2 p-0" id="themeToggle" type="button" style="text-decoration: none;">
             <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
         </button>
-        <a href='login.php' class='btn btn-outline-light btn-sm fw-bold'>เข้าสู่ระบบ</a>
+        <a href='login.php' class='btn btn-outline-light btn-sm fw-bold px-3'>เข้าสู่ระบบ</a>
     </div>
   </div>
 </nav>
 
 <div class="login-wrapper">
-    <div class="card login-card shadow-lg" style="width: 100%; max-width: 400px; border-radius: 15px;">
-        <div class="card-body p-4">
-            <h3 class="text-center mb-4 fw-bold">เข้าสู่ระบบ</h3>
+    <div class="card shadow-lg border-0" style="width: 100%; max-width: 400px; border-radius: 20px;">
+        <div class="card-body p-4 p-md-5">
+            <div class="text-center mb-4">
+                <i class="bi bi-person-circle text-primary" style="font-size: 3rem;"></i>
+                <h3 class="fw-bold mt-2">เข้าสู่ระบบ</h3>
+                <p class="text-muted small">กรุณากรอกข้อมูลเพื่อเข้าใช้งานระบบคลังพัสดุ</p>
+            </div>
+
+            <?php if(isset($_GET['error'])) { ?>
+                <div class="alert alert-danger py-2 small text-center rounded-3">
+                    <i class="bi bi-exclamation-triangle me-1"></i> ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง
+                </div>
+            <?php } ?>
+
             <form action="auth_action.php" method="POST">
                 <div class="mb-3">
-                    <label class="form-label">ชื่อผู้ใช้งาน</label>
-                    <input type="text" name="username" class="form-control" placeholder="Username" required>
+                    <label class="form-label fw-semibold small">ชื่อผู้ใช้งาน</label>
+                    <input type="text" name="username" class="form-control form-control-lg" placeholder="Username" required>
                 </div>
                 <div class="mb-4">
-                    <label class="form-label fw-semibold">รหัสผ่าน (Password)</label>
+                    <label class="form-label fw-semibold small">รหัสผ่าน (Password)</label>
                     <div class="input-group">
-                        <input type="password" name="password" id="password" class="form-control" placeholder="กรอกรหัสผ่าน" required>
+                        <input type="password" name="password" id="password" class="form-control form-control-lg" placeholder="กรอกรหัสผ่าน" required>
                         <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password">
                             <i class="bi bi-eye-slash"></i>
                         </button>
                     </div>
                 </div>
-                <button type="submit" name="login" class="btn btn-primary w-100 mb-3 fw-bold py-2">Login</button>
-                <div class="text-center">
-                    <a href="register.php" class="text-decoration-none">สมัครสมาชิก</a> | 
+                <button type="submit" name="login" class="btn btn-primary w-100 mb-3 fw-bold py-2 shadow-sm">เข้าสู่ระบบ</button>
+                <div class="text-center small">
+                    <a href="register.php" class="text-decoration-none fw-bold">สมัครสมาชิก</a>
+                    <span class="text-muted mx-2">|</span>
                     <a href="forgot_password.php" class="text-decoration-none text-muted">ลืมรหัสผ่าน?</a>
                 </div>
             </form>
         </div>
     </div>
 </div>
-
-[Image of theme switcher logic flowchart showing checking localStorage, applying data-bs-theme, and toggling button icons]
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -81,21 +102,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const themeIcon = document.getElementById('themeIcon');
     const htmlElement = document.documentElement;
 
-    // ฟังก์ชันอัปเดตไอคอน
+    // ฟังก์ชันจัดการสีไอคอน
     function updateIcon(theme) {
         if (theme === 'dark') {
             themeIcon.classList.replace('bi-moon-stars-fill', 'bi-sun-fill');
-            themeIcon.style.color = '#ffc107'; // สีเหลืองทอง
+            themeIcon.style.color = '#ffc107'; 
         } else {
             themeIcon.classList.replace('bi-sun-fill', 'bi-moon-stars-fill');
             themeIcon.style.color = '#ffffff';
         }
     }
 
-    // อัปเดตไอคอนครั้งแรกตามธีมที่โหลดมา
+    // เรียกใช้ตอนโหลดหน้า
     updateIcon(htmlElement.getAttribute('data-bs-theme'));
 
-    // ทำงานเมื่อกดปุ่ม
+    // ทำงานเมื่อกดสลับธีม
     if (themeToggle) {
         themeToggle.addEventListener('click', function() {
             const currentTheme = htmlElement.getAttribute('data-bs-theme');
@@ -104,20 +125,21 @@ document.addEventListener('DOMContentLoaded', function() {
             htmlElement.setAttribute('data-bs-theme', newTheme);
             localStorage.setItem('theme', newTheme);
             updateIcon(newTheme);
+            console.log("Theme switched to: " + newTheme);
         });
     }
 
-    // ระบบเปิด-ปิดลูกตา
-    const togglePassword = document.querySelector('.toggle-password');
-    if (togglePassword) {
-        togglePassword.addEventListener('click', function() {
-            const passwordField = document.getElementById('password');
+    // ระบบเปิด-ปิดลูกตาดูรหัสผ่าน
+    const toggleBtn = document.querySelector('.toggle-password');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
             const icon = this.querySelector('i');
-            if (passwordField.type === 'password') {
-                passwordField.type = 'text';
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
                 icon.classList.replace('bi-eye-slash', 'bi-eye');
             } else {
-                passwordField.type = 'password';
+                passwordInput.type = 'password';
                 icon.classList.replace('bi-eye', 'bi-eye-slash');
             }
         });
