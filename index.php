@@ -1,4 +1,9 @@
 <?php 
+// เปิดโหมดดู Error (ถ้ามีปัญหาอีกจะได้รู้ทันทีว่าบรรทัดไหน)
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 session_start(); 
 // ตรวจสอบการ Login
 if(!isset($_SESSION['user_id'])){
@@ -6,10 +11,10 @@ if(!isset($_SESSION['user_id'])){
     exit();
 }
 
-// นำเข้าไฟล์เชื่อมต่อฐานข้อมูล เพื่อดึงข้อมูลหนังสือ
+// นำเข้าไฟล์เชื่อมต่อฐานข้อมูล
 include('config/db.php');
 
-// ดึงข้อมูลหนังสือแนะนำ (สุ่มมา 4 เล่ม หรือจะเปลี่ยนเป็น ORDER BY book_id DESC เพื่อดูเล่มใหม่สุดก็ได้)
+// ดึงข้อมูลหนังสือแนะนำ สุ่มมา 4 เล่ม
 $sql_recommend = "SELECT * FROM books ORDER BY RAND() LIMIT 4";
 $result_recommend = mysqli_query($conn, $sql_recommend);
 ?>
@@ -27,8 +32,6 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
     
     <style>
         body { font-family: 'Sarabun', sans-serif; background-color: #f8f9fa; }
-        
-        /* สไตล์การ์ดหนังสือ */
         .book-card {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             border-radius: 12px;
@@ -39,7 +42,6 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
             transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
-        /* รูปภาพหน้าปกจำลอง */
         .book-cover-placeholder {
             height: 200px;
             background: linear-gradient(135deg, #4e73df, #224abe);
@@ -89,9 +91,9 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
 
     <div class="row g-4">
         <?php 
-        if(mysqli_num_rows($result_recommend) > 0) {
+        // เช็คว่า Query ทำงานสำเร็จและมีข้อมูลหรือไม่
+        if($result_recommend && mysqli_num_rows($result_recommend) > 0) {
             while($book = mysqli_fetch_assoc($result_recommend)) {
-                // เช็คสถานะเพื่อเปลี่ยนสีป้าย (Badge)
                 $status_text = ($book['status'] == 'available') ? 'ว่าง (ยืมได้)' : 'ถูกยืมแล้ว';
                 $status_color = ($book['status'] == 'available') ? 'bg-success' : 'bg-danger';
         ?>
@@ -103,10 +105,10 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
                 </div>
                 <div class="card-body d-flex flex-column">
                     <span class="badge <?php echo $status_color; ?> mb-2 align-self-start"><?php echo $status_text; ?></span>
-                    <h6 class="card-title fw-bold text-truncate" title="<?php echo $book['book_name']; ?>">
-                        <?php echo $book['book_name']; ?>
+                    <h6 class="card-title fw-bold text-truncate" title="<?php echo htmlspecialchars($book['book_name']); ?>">
+                        <?php echo htmlspecialchars($book['book_name']); ?>
                     </h6>
-                    <p class="card-text text-muted small mb-3">ผู้แต่ง: <?php echo $book['author']; ?></p>
+                    <p class="card-text text-muted small mb-3">ผู้แต่ง: <?php echo htmlspecialchars($book['author']); ?></p>
                     
                     <div class="mt-auto">
                         <?php if($book['status'] == 'available') { ?>
@@ -120,9 +122,10 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
         </div>
 
         <?php 
-            } // ปิด while loop
+            }
         } else {
-            echo "<div class="col-12"><p class="text-center text-muted">ยังไม่มีข้อมูลหนังสือในระบบ</p></div>";
+            // แก้ไข Syntax Error ตรงนี้แล้วครับ (เปลี่ยน "" เป็น '')
+            echo "<div class='col-12'><p class='text-center text-muted'>ยังไม่มีข้อมูลหนังสือในระบบ</p></div>";
         }
         ?>
     </div>
