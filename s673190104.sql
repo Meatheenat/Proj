@@ -52,3 +52,6 @@ INSERT INTO borrow_records (user_id, book_id, borrow_date, status) VALUES
 (2, 3, '2026-02-15', 'returned');
 
 ALTER TABLE users ADD email VARCHAR(100) NOT NULL AFTER fullname;
+ALTER TABLE books 
+ADD publish_year VARCHAR(4) NULL AFTER category,
+ADD publisher VARCHAR(100) NULL AFTER publish_year;
