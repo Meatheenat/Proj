@@ -1,54 +1,27 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // === 1. จัดการระบบธีม (Theme Management) ===
     const themeToggle = document.getElementById('themeToggle');
-    const html = document.documentElement;
-
-    // เช็คค่าเดิมในเครื่อง
-    const currentTheme = localStorage.getItem('theme') || 'light';
-    html.setAttribute('data-bs-theme', currentTheme);
-    console.log("ธีมปัจจุบันคือ: " + currentTheme);
-
-    if (themeToggle) {
-        themeToggle.addEventListener('click', function() {
-            const nowTheme = html.getAttribute('data-bs-theme');
-            const newTheme = (nowTheme === 'light') ? 'dark' : 'light';
-            
-            html.setAttribute('data-bs-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            console.log("เปลี่ยนเป็นธีม: " + newTheme); // ถ้ากดแล้วบรรทัดนี้ขึ้นใน Console แสดงว่า JS ผ่าน
-
-            // เปลี่ยนไอคอน
-            const icon = document.getElementById('themeIcon');
-            if(icon) {
-                icon.className = (newTheme === 'dark') ? 'bi bi-sun-fill text-warning' : 'bi bi-moon-stars-fill text-white';
-            }
-        });
-    }
-});
-
-/* โค้ดของมึงที่เหลือ (รวมลูกตาและ Form Validation) ใส่ต่อท้ายตรงนี้ได้เลย */
-document.addEventListener('DOMContentLoaded', function() {
-    // 1. จัดการระบบธีม (Theme Management)
-    const themeToggle = document.getElementById('themeToggle');
-    const themeIcon = document.getElementById('themeIcon');
     const htmlElement = document.documentElement;
 
-    // ดึงค่าจาก LocalStorage
-    const currentTheme = localStorage.getItem('theme') || 'light';
-    htmlElement.setAttribute('data-bs-theme', currentTheme);
-    updateIcon(currentTheme);
+    // ดึงค่าจาก LocalStorage หรือตั้งเป็น light ถ้าไม่มีค่า
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    htmlElement.setAttribute('data-bs-theme', savedTheme);
+    updateIcon(savedTheme);
+    console.log("ธีมปัจจุบันคือ: " + savedTheme);
 
     if (themeToggle) {
         themeToggle.addEventListener('click', () => {
-            let theme = htmlElement.getAttribute('data-bs-theme');
-            let newTheme = (theme === 'light') ? 'dark' : 'light';
+            const currentTheme = htmlElement.getAttribute('data-bs-theme');
+            const newTheme = (currentTheme === 'light') ? 'dark' : 'light';
             
             htmlElement.setAttribute('data-bs-theme', newTheme);
             localStorage.setItem('theme', newTheme);
             updateIcon(newTheme);
+            console.log("เปลี่ยนเป็นธีม: " + newTheme);
         });
     }
 
-    // 2. ระบบเปิด-ปิดตา (Show/Hide Password)
+    // === 2. ระบบเปิด-ปิดตา (Show/Hide Password) ===
     const togglePasswordButtons = document.querySelectorAll('.toggle-password');
     togglePasswordButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -66,11 +39,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // 3. Form Validation
+    // === 3. ระบบตรวจสอบฟอร์ม (Form Validation) ===
     const forms = document.querySelectorAll('form');
     forms.forEach(form => {
         form.addEventListener('submit', function(event) {
-            let password = form.querySelector('input[name="password"]');
+            const password = form.querySelector('input[name="password"]');
             if (password && password.value.length < 4) {
                 alert('รหัสผ่านต้องมีความยาวอย่างน้อย 4 ตัวอักษร');
                 event.preventDefault();
@@ -79,21 +52,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// ฟังก์ชันอัปเดตไอคอน (แยกออกมาข้างนอก)
+/**
+ * ฟังก์ชันอัปเดตไอคอนธีม (อยู่นอก DOMContentLoaded เพื่อให้เรียกใช้ได้ทั่วถึง)
+ */
 function updateIcon(theme) {
     const themeIcon = document.getElementById('themeIcon');
     if (!themeIcon) return;
 
     if (theme === 'dark') {
-        themeIcon.className = 'bi bi-sun-fill'; // ใช้ className เพื่อความชัวร์
-        themeIcon.style.color = '#ffc107';
+        themeIcon.className = 'bi bi-sun-fill'; 
+        themeIcon.style.color = '#ffc107'; // สีเหลืองทองเมื่อเป็น Dark Mode
     } else {
         themeIcon.className = 'bi bi-moon-stars-fill';
-        themeIcon.style.color = '#ffffff';
+        themeIcon.style.color = '#ffffff'; // สีขาวเมื่อเป็น Light Mode (บน Navbar ดำ)
     }
 }
 
-// ฟังก์ชันลืมรหัสผ่าน
+/**
+ * ฟังก์ชันลืมรหัสผ่าน
+ */
 function handleForgotPass() {
     const forgotInput = document.querySelector('#forgot_user');
     if(forgotInput) {
