@@ -22,7 +22,7 @@
         <button class="btn btn-link text-white me-2" id="themeToggle" type="button" style="text-decoration: none;">
             <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
         </button>
-        <a href='login.php' class='btn btn-outline-light btn-sm'>กลับหน้าเข้าสู่ระบบ</a>
+        
     </div>
   </div>
 </nav>
