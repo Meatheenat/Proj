@@ -4,16 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>เข้าสู่ระบบ - Library System</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="assets/style.css">
+
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-bs-theme', savedTheme);
+        })();
+    </script>
+
     <style>
-        /* ตั้งค่าให้หน้าจอกลางเสมอโดยไม่กระทบ Navbar */
         .login-wrapper {
-            min-height: calc(100vh - 56px); /* หักความสูง Navbar ออก */
+            min-height: calc(100vh - 56px);
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+        /* เพิ่ม Transition ให้สีค่อยๆ เปลี่ยน */
+        body {
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
     </style>
 </head>
@@ -59,7 +71,59 @@
     </div>
 </div>
 
+[Image of theme switcher logic flowchart showing checking localStorage, applying data-bs-theme, and toggling button icons]
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/script.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const htmlElement = document.documentElement;
+
+    // ฟังก์ชันอัปเดตไอคอน
+    function updateIcon(theme) {
+        if (theme === 'dark') {
+            themeIcon.classList.replace('bi-moon-stars-fill', 'bi-sun-fill');
+            themeIcon.style.color = '#ffc107'; // สีเหลืองทอง
+        } else {
+            themeIcon.classList.replace('bi-sun-fill', 'bi-moon-stars-fill');
+            themeIcon.style.color = '#ffffff';
+        }
+    }
+
+    // อัปเดตไอคอนครั้งแรกตามธีมที่โหลดมา
+    updateIcon(htmlElement.getAttribute('data-bs-theme'));
+
+    // ทำงานเมื่อกดปุ่ม
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+            const currentTheme = htmlElement.getAttribute('data-bs-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            htmlElement.setAttribute('data-bs-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateIcon(newTheme);
+        });
+    }
+
+    // ระบบเปิด-ปิดลูกตา
+    const togglePassword = document.querySelector('.toggle-password');
+    if (togglePassword) {
+        togglePassword.addEventListener('click', function() {
+            const passwordField = document.getElementById('password');
+            const icon = this.querySelector('i');
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                icon.classList.replace('bi-eye-slash', 'bi-eye');
+            } else {
+                passwordField.type = 'password';
+                icon.classList.replace('bi-eye', 'bi-eye-slash');
+            }
+        });
+    }
+});
+</script>
+
 </body>
 </html>
