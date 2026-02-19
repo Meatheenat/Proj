@@ -1,25 +1,39 @@
 /* Custom Styles for Library System */
 :root {
+    /* Light Mode Colors */
+    --bg-main: #f8f9fa;
+    --card-bg: #ffffff;
+    --text-main: #333333;
     --primary-color: #4e73df;
     --secondary-color: #858796;
     --success-color: #1cc88a;
-    --bg-light: #f8f9fc;
+}
+
+/* Dark Mode Colors */
+[data-bs-theme="dark"] {
+    --bg-main: #121212;
+    --card-bg: #1e1e1e;
+    --text-main: #e0e0e0;
 }
 
 body {
     font-family: 'Sarabun', sans-serif;
-    background-color: var(--bg-light);
-    color: #333;
+    background-color: var(--bg-main) !important;
+    color: var(--text-main) !important;
+    transition: background-color 0.3s, color 0.3s;
+    min-height: 100vh;
 }
 
-/* ปรับแต่ง Card ให้ดูนุ่มนวลขึ้น (Soft Shadow) */
-.card {
+/* การจัดวาง Card */
+.card, .dashboard-card, .login-card, .register-card, .table-card {
+    background-color: var(--card-bg) !important;
+    color: var(--text-main) !important;
     border: none;
     border-radius: 12px;
     box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
 }
 
-/* ปรับแต่งปุ่มให้ดูทันสมัย */
+/* ปรับแต่งปุ่ม */
 .btn {
     border-radius: 8px;
     padding: 10px 20px;
@@ -37,41 +51,13 @@ body {
     transform: translateY(-1px);
 }
 
-/* สำหรับ Mobile Responsive: ปรับฟอนต์และระยะห่าง */
+[data-bs-theme="dark"] .text-muted {
+    color: #b0b0b0 !important;
+}
+
+/* Mobile Responsive */
 @media (max-width: 576px) {
     .login-card {
         margin: 20px;
     }
-}
-/* กำหนดค่าตัวแปรสีพื้นฐาน (Light Mode) */
-:root {
-    --bg-main: #f8f9fa;
-    --card-bg: #ffffff;
-    --text-main: #333333;
-    --nav-bg: #212529;
-}
-
-/* กำหนดค่าตัวแปรสีสำหรับ Dark Mode */
-[data-bs-theme="dark"] {
-    --bg-main: #121212;
-    --card-bg: #1e1e1e;
-    --text-main: #e0e0e0;
-    --nav-bg: #000000;
-}
-
-/* นำตัวแปรไปใช้กับ Element ต่างๆ */
-body {
-    background-color: var(--bg-main) !important;
-    color: var(--text-main) !important;
-    transition: background-color 0.3s, color 0.3s; /* ใส่ Transition ให้สีค่อยๆ เปลี่ยน */
-}
-
-.card, .dashboard-card, .login-card, .register-card, .table-card {
-    background-color: var(--card-bg) !important;
-    color: var(--text-main) !important;
-}
-
-/* ปรับสีตัวอักษรที่เป็น text-muted ใน Dark Mode ให้สว่างขึ้นนิดนึง */
-[data-bs-theme="dark"] .text-muted {
-    color: #b0b0b0 !important;
 }
