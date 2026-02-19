@@ -1,0 +1,45 @@
+/* Custom Styles for Library System */
+:root {
+    --primary-color: #4e73df;
+    --secondary-color: #858796;
+    --success-color: #1cc88a;
+    --bg-light: #f8f9fc;
+}
+
+body {
+    font-family: 'Sarabun', sans-serif;
+    background-color: var(--bg-light);
+    color: #333;
+}
+
+/* ปรับแต่ง Card ให้ดูนุ่มนวลขึ้น (Soft Shadow) */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+}
+
+/* ปรับแต่งปุ่มให้ดูทันสมัย */
+.btn {
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #2e59d9;
+    transform: translateY(-1px);
+}
+
+/* สำหรับ Mobile Responsive: ปรับฟอนต์และระยะห่าง */
+@media (max-width: 576px) {
+    .login-card {
+        margin: 20px;
+    }
+}
