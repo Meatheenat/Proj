@@ -16,7 +16,7 @@ include('config/db.php');
 $user_id = $_SESSION['user_id'];
 
 // ดึงข้อมูลประวัติการยืม-คืน ของ User คนนี้ เชื่อมกับตารางหนังสือเพื่อเอาชื่อหนังสือ
-$sql = "SELECT br.*, b.book_name, b.author, b.category 
+$sql = "SELECT br.*, b.book_id, b.book_name, b.author, b.category 
         FROM borrow_records br
         JOIN books b ON br.book_id = b.book_id
         WHERE br.user_id = '$user_id'
@@ -46,6 +46,12 @@ $result = mysqli_query($conn, $sql);
             font-weight: 600;
             padding: 0.5em 1em;
             border-radius: 30px;
+        }
+        .btn-borrow-again {
+            transition: all 0.2s;
+        }
+        .btn-borrow-again:hover {
+            transform: scale(1.05);
         }
     </style>
 </head>
@@ -89,11 +95,15 @@ $result = mysqli_query($conn, $sql);
                                 if($row['status'] == 'pending') {
                                     $status_label = '<span class="badge bg-warning text-dark status-badge">กำลังยืม</span>';
                                     $return_date = '<span class="text-muted small">- ยังไม่คืน -</span>';
-                                    $action_btn = '<a href="return_book.php" class="btn btn-sm btn-success fw-bold">ไปหน้าคืน</a>';
+                                    $action_btn = '<a href="return_book.php" class="btn btn-sm btn-success fw-bold px-3 shadow-sm">ไปหน้าคืน</a>';
                                 } else {
                                     $status_label = '<span class="badge bg-success status-badge text-white">คืนแล้ว</span>';
                                     $return_date = date('d/m/Y', strtotime($row['return_date']));
-                                    $action_btn = '<button class="btn btn-sm btn-light border fw-bold" disabled>เรียบร้อย</button>';
+                                    
+                                    // แก้ไขส่วนนี้: เปลี่ยนจากปุ่ม disabled เป็นปุ่มยืมอีกครั้ง
+                                    $action_btn = '<a href="borrow.php?id=' . $row['book_id'] . '" class="btn btn-sm btn-outline-primary fw-bold px-3 btn-borrow-again">
+                                                    <i class="bi bi-arrow-repeat me-1"></i>ยืมอีกครั้ง
+                                                   </a>';
                                 }
                         ?>
                         <tr>
