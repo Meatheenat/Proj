@@ -178,8 +178,21 @@ $cat_result = mysqli_query($conn, $cat_sql);
                 $is_avail = ($book['status'] == 'available');
         ?>
         <div class="col-6 col-md-4 col-lg-3">
-            <div class="card book-card h-100 shadow-sm border-0">
-                <div class="book-placeholder"><i class="bi bi-book"></i></div>
+           <div class="card book-card h-100 shadow-sm">
+    <div class="book-cover-container" style="height: 200px; overflow: hidden; background: #eee; border-radius: 15px 15px 0 0;">
+        <?php if(!empty($book['book_image']) && file_exists("assets/img/covers/" . $book['book_image'])): ?>
+            <img src="assets/img/covers/<?php echo $book['book_image']; ?>" 
+                 class="w-100 h-100" style="object-fit: cover;" alt="หน้าปก">
+        <?php else: ?>
+            <div class="d-flex align-items-center justify-content-center h-100">
+                <i class="bi bi-book fs-1 text-muted"></i>
+            </div>
+        <?php endif; ?>
+    </div>
+    
+    <div class="card-body d-flex flex-column">
+        </div>
+</div>
                 <div class="card-body d-flex flex-column p-3">
                     <span class="badge <?= $is_avail ? 'bg-success' : 'bg-danger' ?> mb-2 align-self-start">
                         <?= $is_avail ? 'ว่าง' : 'ถูกยืม' ?>

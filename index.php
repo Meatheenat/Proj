@@ -189,11 +189,21 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
                 $status_color = $is_available ? 'bg-success' : 'bg-danger';
         ?>
         <div class="col-6 col-md-4 col-lg-3">
-            <div class="card book-card h-100 shadow-sm">
-                <div class="book-img-placeholder">
-                    <i class="bi bi-book"></i>
-                </div>
-                <div class="card-body d-flex flex-column">
+           <div class="card book-card h-100 shadow-sm">
+    <div class="book-cover-container" style="height: 200px; overflow: hidden; background: #eee; border-radius: 15px 15px 0 0;">
+        <?php if(!empty($book['book_image']) && file_exists("assets/img/covers/" . $book['book_image'])): ?>
+            <img src="assets/img/covers/<?php echo $book['book_image']; ?>" 
+                 class="w-100 h-100" style="object-fit: cover;" alt="หน้าปก">
+        <?php else: ?>
+            <div class="d-flex align-items-center justify-content-center h-100">
+                <i class="bi bi-book fs-1 text-muted"></i>
+            </div>
+        <?php endif; ?>
+    </div>
+    
+    <div class="card-body d-flex flex-column">
+        </div>
+</div>
                     <div class="mb-2">
                         <span class="badge <?php echo $status_color; ?> rounded-pill px-3"><?php echo $status_text; ?></span>
                     </div>
