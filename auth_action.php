@@ -75,4 +75,30 @@ if(isset($_POST['login'])){
               </script>";
     }
 }
+// ==========================================
+// 3. ระบบลืมรหัสผ่าน (Forgot Password)
+// ==========================================
+if(isset($_POST['forgot_password'])){
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+
+    // ค้นหาว่ามีอีเมลนี้ในระบบหรือไม่
+    $sql = "SELECT * FROM users WHERE email='$email'";
+    $result = mysqli_query($conn, $sql);
+    
+    if(mysqli_num_rows($result) > 0){
+        $user = mysqli_fetch_assoc($result);
+        $found_password = $user['password'];
+        
+        // ในระบบจริงควรส่งเข้าอีเมล แต่เพื่อความง่ายในการพัฒนา จะแสดงแจ้งเตือนให้เห็นเลย
+        echo "<script>
+                alert('พบข้อมูลของคุณ! รหัสผ่านของคุณคือ: $found_password'); 
+                window.location='login.php';
+              </script>";
+    } else {
+        echo "<script>
+                alert('ไม่พบอีเมลนี้ในระบบ กรุณาตรวจสอบอีกครั้ง'); 
+                window.history.back();
+              </script>";
+    }
+}
 ?>

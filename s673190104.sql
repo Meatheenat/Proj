@@ -50,3 +50,5 @@ INSERT INTO borrow_records (user_id, book_id, borrow_date, status) VALUES
 (2, 1, '2026-02-18', 'pending'),
 (3, 2, '2026-02-19', 'pending'),
 (2, 3, '2026-02-15', 'returned');
+
+ALTER TABLE users ADD email VARCHAR(100) NOT NULL AFTER fullname;
