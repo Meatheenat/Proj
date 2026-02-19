@@ -12,7 +12,17 @@
     </style>
 </head>
 <body>
-
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="index.php">LibraryMobile</a>
+    <div class="ms-auto text-white">
+        <a href='login.php' class='btn btn-outline-light btn-sm'>กลับหน้าเข้าสู่ระบบ</a>
+    </div>
+  </div>
+  <button class="btn btn-link text-white me-2" id="themeToggle" type="button">
+    <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
+</button>
+</nav>
 <div class="container d-flex justify-content-center">
     <div class="card login-card">
         <div class="card-body">

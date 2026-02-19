@@ -49,4 +49,40 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+// ==========================================
+// ระบบสลับธีม Dark / Light Mode
+// ==========================================
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
+const htmlElement = document.documentElement;
+
+// 1. เช็คธีมที่เคยเก็บไว้ใน LocalStorage
+const currentTheme = localStorage.getItem('theme') || 'light';
+htmlElement.setAttribute('data-bs-theme', currentTheme);
+updateIcon(currentTheme);
+
+// 2. เมื่อกดปุ่มสลับธีม
+if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+        let theme = htmlElement.getAttribute('data-bs-theme');
+        let newTheme = (theme === 'light') ? 'dark' : 'light';
+        
+        htmlElement.setAttribute('data-bs-theme', newTheme);
+        localStorage.setItem('theme', newTheme); // บันทึกค่าลงเครื่อง
+        updateIcon(newTheme);
+    });
+}
+
+// ฟังก์ชันเปลี่ยนไอคอน
+function updateIcon(theme) {
+    if (theme === 'dark') {
+        themeIcon.classList.remove('bi-moon-stars-fill');
+        themeIcon.classList.add('bi-sun-fill');
+        themeIcon.style.color = '#ffc107'; // สีเหลืองทอง
+    } else {
+        themeIcon.classList.remove('bi-sun-fill');
+        themeIcon.classList.add('bi-moon-stars-fill');
+        themeIcon.style.color = '#ffffff';
+    }
+}
 }

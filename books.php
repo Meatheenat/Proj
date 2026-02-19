@@ -100,6 +100,9 @@ $cat_result = mysqli_query($conn, $cat_sql);
         <span class="d-none d-sm-inline">สวัสดี, <?php echo htmlspecialchars($_SESSION['fullname']); ?></span>
     </div>
   </div>
+  <button class="btn btn-link text-white me-2" id="themeToggle" type="button">
+    <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
+</button>
 </nav>
 
 <div class="container mb-5">

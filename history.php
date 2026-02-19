@@ -64,6 +64,9 @@ $result = mysqli_query($conn, $sql);
         <a href="index.php" class="btn btn-outline-light btn-sm fw-bold">กลับหน้าหลัก</a>
     </div>
   </div>
+  <button class="btn btn-link text-white me-2" id="themeToggle" type="button">
+    <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
+</button>
 </nav>
 
 <div class="container mt-5 mb-5">

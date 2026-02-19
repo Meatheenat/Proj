@@ -63,6 +63,9 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
         <a href='logout.php' class='btn btn-outline-danger btn-sm fw-bold'>ออกจากระบบ</a>
     </div>
   </div>
+  <button class="btn btn-link text-white me-2" id="themeToggle" type="button">
+    <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
+</button>
 </nav>
 
 <div class="container mt-4 mb-5">
