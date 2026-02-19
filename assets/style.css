@@ -43,7 +43,6 @@ body {
         margin: 20px;
     }
 }
-
 /* กำหนดค่าตัวแปรสีพื้นฐาน (Light Mode) */
 :root {
     --bg-main: #f8f9fa;

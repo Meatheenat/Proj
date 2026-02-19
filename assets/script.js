@@ -17,16 +17,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ฟังก์ชันสำหรับหน้าลืมรหัสผ่าน (Simulate)
 function handleForgotPass() {
-    const usernameInput = document.querySelector('#forgot_user');
-    if (usernameInput) {
-        const username = usernameInput.value;
-        if(username === "") {
-            alert("กรุณากรอก Username");
-        } else {
-            alert("ระบบได้รับเรื่องแล้ว กรุณารอการติดต่อกลับจาก Admin");
-        }
+    const username = document.querySelector('#forgot_user').value;
+    if(username === "") {
+        alert("กรุณากรอก Username");
+    } else {
+        alert("ระบบได้รับเรื่องแล้ว กรุณารอการติดต่อกลับจาก Admin");
     }
-} // <--- เติมปิดปีกกาตรงนี้เพื่อให้โค้ดด้านล่างทำงานได้
+} // <--- ผมเติมปิดปีกกาตรงนี้ให้พี่ เพื่อไม่ให้โค้ดข้างล่างมันพังครับ
 
 // ==========================================
 // ระบบเปิด-ปิดตา (Show/Hide Password)
@@ -54,36 +51,32 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
-
 // ==========================================
 // ระบบสลับธีม Dark / Light Mode
 // ==========================================
-// ใส่ไว้ใน DOMContentLoaded เพื่อให้หาปุ่ม themeToggle เจอแน่นอน
-document.addEventListener('DOMContentLoaded', function() {
-    const themeToggle = document.getElementById('themeToggle');
-    const themeIcon = document.getElementById('themeIcon');
-    const htmlElement = document.documentElement;
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
+const htmlElement = document.documentElement;
 
-    // 1. เช็คธีมที่เคยเก็บไว้ใน LocalStorage
-    const currentTheme = localStorage.getItem('theme') || 'light';
-    htmlElement.setAttribute('data-bs-theme', currentTheme);
-    if (themeIcon) updateIcon(currentTheme, themeIcon);
+// 1. เช็คธีมที่เคยเก็บไว้ใน LocalStorage
+const currentTheme = localStorage.getItem('theme') || 'light';
+htmlElement.setAttribute('data-bs-theme', currentTheme);
+if(themeIcon) updateIcon(currentTheme);
 
-    // 2. เมื่อกดปุ่มสลับธีม
-    if (themeToggle) {
-        themeToggle.addEventListener('click', () => {
-            let theme = htmlElement.getAttribute('data-bs-theme');
-            let newTheme = (theme === 'light') ? 'dark' : 'light';
-            
-            htmlElement.setAttribute('data-bs-theme', newTheme);
-            localStorage.setItem('theme', newTheme); // บันทึกค่าลงเครื่อง
-            if (themeIcon) updateIcon(newTheme, themeIcon);
-        });
-    }
-});
+// 2. เมื่อกดปุ่มสลับธีม
+if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+        let theme = htmlElement.getAttribute('data-bs-theme');
+        let newTheme = (theme === 'light') ? 'dark' : 'light';
+        
+        htmlElement.setAttribute('data-bs-theme', newTheme);
+        localStorage.setItem('theme', newTheme); // บันทึกค่าลงเครื่อง
+        updateIcon(newTheme);
+    });
+}
 
 // ฟังก์ชันเปลี่ยนไอคอน
-function updateIcon(theme, themeIcon) {
+function updateIcon(theme) {
     if (theme === 'dark') {
         themeIcon.classList.remove('bi-moon-stars-fill');
         themeIcon.classList.add('bi-sun-fill');
