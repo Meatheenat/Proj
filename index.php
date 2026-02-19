@@ -1,5 +1,5 @@
 <?php 
-// 1. เปิดโหมดดู Error เพื่อการตรวจสอบ (IT Support Style)
+// 1. เปิดโหมดดู Error (IT Support Style)
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -15,7 +15,7 @@ if(!isset($_SESSION['user_id'])){
 // 3. นำเข้าไฟล์เชื่อมต่อฐานข้อมูล
 include('config/db.php');
 
-// 4. ระบบนับจำนวนแจ้งเตือนหนังสือเกินกำหนด (Notification Count)
+// 4. ระบบนับจำนวนแจ้งเตือนหนังสือเกินกำหนด
 $today = date('Y-m-d');
 $user_id = $_SESSION['user_id'];
 $sql_noti = "SELECT COUNT(*) as total FROM borrow_records 
@@ -30,16 +30,15 @@ $sql_recommend = "SELECT * FROM books ORDER BY RAND() LIMIT 4";
 $result_recommend = mysqli_query($conn, $sql_recommend);
 ?>
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>หน้าแรก - Library System</title>
     
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    
     <link rel="stylesheet" href="assets/style.css">
     
     <script>
@@ -50,27 +49,49 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
     </script>
 
     <style>
-        body { 
-            transition: background-color 0.3s ease, color 0.3s ease;
+        /* --- นิยามตัวแปรสีให้เหมือนหน้า Login (Full Page Toggle) --- */
+        [data-bs-theme="light"] {
+            --bg-page: #f8f9fa;
+            --bg-card: #ffffff;
+            --text-color: #212529;
         }
+
+        [data-bs-theme="dark"] {
+            --bg-page: #121212;
+            --bg-card: #1e1e1e;
+            --text-color: #f8f9fa;
+        }
+
+        body { 
+            background-color: var(--bg-page) !important;
+            color: var(--text-color) !important;
+            transition: all 0.3s ease;
+        }
+
         .hero-section {
-            background: linear-gradient(135deg, var(--primary-color, #4e73df) 0%, #224abe 100%);
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
             border-radius: 20px;
             color: white;
         }
+        
         [data-bs-theme="dark"] .hero-section {
             background: linear-gradient(135deg, #1e1e1e 0%, #333 100%);
             border: 1px solid #444;
         }
+
         .book-card {
-            border: none;
+            background-color: var(--bg-card) !important;
+            border: none !important;
             border-radius: 15px;
             transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
+
         .book-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important;
         }
+
         .book-img-placeholder {
             height: 220px;
             background: #eee;
@@ -81,6 +102,7 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
             font-size: 4rem;
             color: #ccc;
         }
+
         [data-bs-theme="dark"] .book-img-placeholder {
             background: #2a2a2a;
             color: #444;
@@ -92,7 +114,7 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
   <div class="container">
     <a class="navbar-brand fw-bold" href="index.php">
-        <i class="bi bi-book-half me-2"></i>LibraryMobile
+        <i class="bi bi-book-half me-2 text-primary"></i>LibraryMobile
     </a>
     
     <div class="ms-auto d-flex align-items-center">
@@ -144,8 +166,8 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
     </div>
 
     <?php if(isset($_SESSION['role']) && $_SESSION['role'] == 'admin') { ?>
-    <div class="alert alert-dark border-0 shadow-sm d-flex justify-content-between align-items-center p-3 mb-5 rounded-4">
-        <span class="fw-bold"><i class="bi bi-shield-lock-fill me-2 text-warning"></i>ระบบจัดการสำหรับผู้ดูแลระบบ</span>
+    <div class="alert alert-dark border-0 shadow-sm d-flex justify-content-between align-items-center p-3 mb-5 rounded-4" style="background-color: #1e1e1e; border: 1px solid #333 !important;">
+        <span class="fw-bold text-white"><i class="bi bi-shield-lock-fill me-2 text-warning"></i>ระบบจัดการสำหรับผู้ดูแลระบบ</span>
         <a href="admin_dashboard.php" class="btn btn-warning btn-sm fw-bold rounded-pill px-4">เข้าสู่ระบบหลังบ้าน</a>
     </div>
     <?php } ?>
@@ -153,7 +175,7 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
     <div class="d-flex justify-content-between align-items-end mb-4">
         <div>
             <h3 class="fw-bold m-0"><i class="bi bi-stars text-warning me-2"></i>หนังสือแนะนำ</h3>
-            <p class="text-muted m-0 small">สุ่มหนังสือใหม่ๆ มาให้คุณเลือกอ่าน</p>
+            <p class="text-muted m-0 small opacity-75">สุ่มหนังสือใหม่ๆ มาให้คุณเลือกอ่าน</p>
         </div>
         <a href="books.php" class="text-decoration-none fw-bold">ดูทั้งหมด <i class="bi bi-chevron-right"></i></a>
     </div>
@@ -166,7 +188,6 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
                 $status_text = $is_available ? 'ว่าง (ยืมได้)' : 'ถูกยืมแล้ว';
                 $status_color = $is_available ? 'bg-success' : 'bg-danger';
         ?>
-        
         <div class="col-6 col-md-4 col-lg-3">
             <div class="card book-card h-100 shadow-sm">
                 <div class="book-img-placeholder">
@@ -179,8 +200,7 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
                     <h6 class="card-title fw-bold text-truncate" title="<?php echo htmlspecialchars($book['book_name']); ?>">
                         <?php echo htmlspecialchars($book['book_name']); ?>
                     </h6>
-                    <p class="card-text text-muted small mb-3">ผู้แต่ง: <?php echo htmlspecialchars($book['author']); ?></p>
-                    
+                    <p class="card-text opacity-75 small mb-3">ผู้แต่ง: <?php echo htmlspecialchars($book['author']); ?></p>
                     <div class="mt-auto">
                         <?php if($is_available) { ?>
                             <a href="borrow.php?id=<?php echo $book['book_id']; ?>" class="btn btn-primary btn-sm w-100 fw-bold rounded-pill shadow-sm py-2">ยืมเล่มนี้</a>
@@ -191,15 +211,10 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
                 </div>
             </div>
         </div>
-
-        <?php 
-            }
-        } else {
-            echo "<div class='col-12 text-center py-5'><i class='bi bi-inbox text-muted fs-1'></i><p class='text-muted mt-2'>ยังไม่มีข้อมูลหนังสือในระบบ</p></div>";
-        }
-        ?>
+        <?php } } else { ?>
+            <div class='col-12 text-center py-5'><i class='bi bi-inbox text-muted fs-1'></i><p class='text-muted mt-2'>ยังไม่มีข้อมูลหนังสือในระบบ</p></div>
+        <?php } ?>
     </div>
-
 </div>
 
 <footer class="bg-dark text-white py-4 mt-5">
@@ -209,8 +224,39 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
     </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const htmlElement = document.documentElement;
+
+    function updateIcon(theme) {
+        if (theme === 'dark') {
+            themeIcon.classList.replace('bi-moon-stars-fill', 'bi-sun-fill');
+            themeIcon.style.color = '#ffc107'; 
+        } else {
+            themeIcon.classList.replace('bi-sun-fill', 'bi-moon-stars-fill');
+            themeIcon.style.color = '#ffffff';
+        }
+    }
+
+    // เซ็ตธีมเริ่มต้น
+    updateIcon(htmlElement.getAttribute('data-bs-theme'));
+
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+            const currentTheme = htmlElement.getAttribute('data-bs-theme');
+            const newTheme = (currentTheme === 'light') ? 'dark' : 'light';
+            
+            htmlElement.setAttribute('data-bs-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateIcon(newTheme);
+        });
+    }
+});
+</script>
 
 </body>
 </html>
