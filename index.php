@@ -1,20 +1,31 @@
 <?php 
-// เปิดโหมดดู Error
+// 1. เปิดโหมดดู Error เพื่อการตรวจสอบ
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 session_start(); 
-// ตรวจสอบการ Login
+
+// 2. ตรวจสอบการ Login
 if(!isset($_SESSION['user_id'])){
     header("Location: login.php");
     exit();
 }
 
-// นำเข้าไฟล์เชื่อมต่อฐานข้อมูล
+// 3. นำเข้าไฟล์เชื่อมต่อฐานข้อมูล
 include('config/db.php');
 
-// ดึงข้อมูลหนังสือแนะนำ สุ่มมา 4 เล่ม
+// 4. ระบบนับจำนวนแจ้งเตือนหนังสือเกินกำหนด (Notification Count)
+$today = date('Y-m-d');
+$user_id = $_SESSION['user_id'];
+$sql_noti = "SELECT COUNT(*) as total FROM borrow_records 
+             WHERE user_id = '$user_id' 
+             AND status = 'pending' 
+             AND due_date < '$today'";
+$res_noti = mysqli_query($conn, $sql_noti);
+$noti_count = mysqli_fetch_assoc($res_noti)['total'];
+
+// 5. ดึงข้อมูลหนังสือแนะนำ สุ่มมา 4 เล่ม
 $sql_recommend = "SELECT * FROM books ORDER BY RAND() LIMIT 4";
 $result_recommend = mysqli_query($conn, $sql_recommend);
 ?>
@@ -75,6 +86,15 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
     </a>
     
     <div class="ms-auto d-flex align-items-center">
+        <a href="notifications.php" class="btn btn-link text-white position-relative me-3 p-0" style="text-decoration: none;">
+            <i class="bi bi-bell-fill fs-5"></i>
+            <?php if($noti_count > 0) { ?>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+                    <?php echo $noti_count; ?>
+                </span>
+            <?php } ?>
+        </a>
+
         <button class="btn btn-link text-white me-3 p-0" id="themeToggle" type="button" style="text-decoration: none;">
             <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
         </button>
@@ -83,8 +103,8 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
             <button class="btn btn-outline-light btn-sm dropdown-toggle fw-bold px-3" type="button" data-bs-toggle="dropdown">
                 <i class="bi bi-person-circle me-1"></i> <?php echo htmlspecialchars($_SESSION['fullname']); ?>
             </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow">
-                <li><a class="dropdown-item" href="history.php"><i class="bi bi-clock-history me-2"></i>ประวัติของฉัน</a></li>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="border-radius: 12px;">
+                <li><a class="dropdown-item" href="history.php"><i class="bi bi-clock-history me-2 text-primary"></i>ประวัติของฉัน</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item text-danger" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i>ออกจากระบบ</a></li>
             </ul>
@@ -100,9 +120,9 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
             <div class="row align-items-center">
                 <div class="col-md-7 text-center text-md-start">
                     <h1 class="fw-bold mb-3">สวัสดีครับคุณ, <?php echo explode(' ', $_SESSION['fullname'])[0]; ?>!</h1>
-                    <p class="lead mb-4 opacity-75">เข้าถึงความรู้ได้ทุกที่ ค้นหาหนังสือที่ใช่ และทำรายการยืม-คืนได้รวดเร็วผ่านระบบออนไลน์</p>
+                    <p class="lead mb-4 opacity-75">ค้นหาหนังสือที่ใช่ และทำรายการยืม-คืนได้รวดเร็วผ่านระบบออนไลน์ของคุณ</p>
                     <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-md-start">
-                        <a href="books.php" class="btn btn-light btn-lg fw-bold px-4 text-primary"><i class="bi bi-search me-2"></i>ค้นหาหนังสือ</a>
+                        <a href="books.php" class="btn btn-light btn-lg fw-bold px-4 text-primary shadow-sm"><i class="bi bi-search me-2"></i>ค้นหาหนังสือ</a>
                         <a href="return_book.php" class="btn btn-success btn-lg fw-bold px-4 shadow-sm"><i class="bi bi-arrow-left-right me-2"></i>คืนหนังสือ</a>
                     </div>
                 </div>
@@ -115,17 +135,17 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
 
     <?php if(isset($_SESSION['role']) && $_SESSION['role'] == 'admin') { ?>
     <div class="alert alert-dark border-0 shadow-sm d-flex justify-content-between align-items-center p-3 mb-5" style="border-radius: 15px;">
-        <span class="fw-bold"><i class="bi bi-shield-lock-fill me-2 text-warning"></i>ส่วนจัดการสำหรับแอดมิน</span>
-        <a href="admin_dashboard.php" class="btn btn-warning btn-sm fw-bold">เข้าสู่ระบบหลังบ้าน</a>
+        <span class="fw-bold"><i class="bi bi-shield-lock-fill me-2 text-warning"></i>ระบบจัดการสำหรับผู้ดูแลระบบ</span>
+        <a href="admin_dashboard.php" class="btn btn-warning btn-sm fw-bold rounded-pill px-3">ไปที่หน้าแอดมิน</a>
     </div>
     <?php } ?>
 
     <div class="d-flex justify-content-between align-items-end mb-4">
         <div>
             <h3 class="fw-bold m-0"><i class="bi bi-stars text-warning me-2"></i>หนังสือแนะนำ</h3>
-            <p class="text-muted m-0">สุ่มหนังสือใหม่ๆ มาให้คุณเลือกอ่าน</p>
+            <p class="text-muted m-0">สุ่มหนังสือที่น่าสนใจมาให้คุณได้อ่าน</p>
         </div>
-        <a href="books.php" class="btn btn-outline-primary fw-bold rounded-pill">ดูทั้งหมด</a>
+        <a href="books.php" class="btn btn-outline-primary fw-bold rounded-pill px-3 shadow-sm">ดูทั้งหมด</a>
     </div>
 
     <div class="row g-4">
@@ -143,8 +163,8 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
                     <i class="bi bi-book"></i>
                 </div>
                 <div class="card-body d-flex flex-column">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <span class="badge <?php echo $status_color; ?> rounded-pill"><?php echo $status_text; ?></span>
+                    <div class="mb-2">
+                        <span class="badge <?php echo $status_color; ?> rounded-pill px-2"><?php echo $status_text; ?></span>
                     </div>
                     <h6 class="card-title fw-bold text-truncate" title="<?php echo htmlspecialchars($book['book_name']); ?>">
                         <?php echo htmlspecialchars($book['book_name']); ?>
@@ -153,9 +173,9 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
                     
                     <div class="mt-auto">
                         <?php if($is_available) { ?>
-                            <a href="borrow.php?id=<?php echo $book['book_id']; ?>" class="btn btn-primary btn-sm w-100 fw-bold rounded-pill shadow-sm">ยืมเล่มนี้</a>
+                            <a href="borrow.php?id=<?php echo $book['book_id']; ?>" class="btn btn-primary btn-sm w-100 fw-bold rounded-pill shadow-sm py-2">ยืมเล่มนี้</a>
                         <?php } else { ?>
-                            <button class="btn btn-secondary btn-sm w-100 fw-bold rounded-pill" disabled>ไม่ว่าง</button>
+                            <button class="btn btn-secondary btn-sm w-100 fw-bold rounded-pill py-2" disabled>ไม่ว่าง</button>
                         <?php } ?>
                     </div>
                 </div>
@@ -165,7 +185,7 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
         <?php 
             }
         } else {
-            echo "<div class='col-12 text-center py-5'><i class='bi bi-inbox text-muted' style='font-size: 3rem;'></i><p class='text-muted mt-2'>ไม่พบข้อมูลหนังสือในขณะนี้</p></div>";
+            echo "<div class='col-12 text-center py-5'><i class='bi bi-inbox text-muted' style='font-size: 3rem;'></i><p class='text-muted mt-2'>ยังไม่มีข้อมูลหนังสือในขณะนี้</p></div>";
         }
         ?>
     </div>
@@ -173,9 +193,17 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
 </div>
 
 <footer class="bg-dark text-white py-4 mt-5">
-    <div class="container text-center">
-        <p class="mb-1 fw-bold">LibraryMobile System</p>
-        <p class="small opacity-50 mb-0">© 2026 ระบบจัดการห้องสมุดยุคใหม่ - พัฒนาเพื่อการเรียนรู้</p>
+    <div class="container text-center text-md-start">
+        <div class="row align-items-center">
+            <div class="col-md-6 mb-2 mb-md-0">
+                <p class="mb-0 fw-bold">LibraryMobile System</p>
+                <p class="small opacity-50 mb-0">© 2026 ระบบจัดการห้องสมุดยุคใหม่ เพื่อการเรียนรู้</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <a href="#" class="text-white opacity-50 me-3 text-decoration-none small">ข้อกำหนดการใช้งาน</a>
+                <a href="#" class="text-white opacity-50 text-decoration-none small">นโยบายความเป็นส่วนตัว</a>
+            </div>
+        </div>
     </div>
 </footer>
 
