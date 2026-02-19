@@ -1,4 +1,32 @@
 document.addEventListener('DOMContentLoaded', function() {
+    const themeToggle = document.getElementById('themeToggle');
+    const html = document.documentElement;
+
+    // เช็คค่าเดิมในเครื่อง
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    html.setAttribute('data-bs-theme', currentTheme);
+    console.log("ธีมปัจจุบันคือ: " + currentTheme);
+
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+            const nowTheme = html.getAttribute('data-bs-theme');
+            const newTheme = (nowTheme === 'light') ? 'dark' : 'light';
+            
+            html.setAttribute('data-bs-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            console.log("เปลี่ยนเป็นธีม: " + newTheme); // ถ้ากดแล้วบรรทัดนี้ขึ้นใน Console แสดงว่า JS ผ่าน
+
+            // เปลี่ยนไอคอน
+            const icon = document.getElementById('themeIcon');
+            if(icon) {
+                icon.className = (newTheme === 'dark') ? 'bi bi-sun-fill text-warning' : 'bi bi-moon-stars-fill text-white';
+            }
+        });
+    }
+});
+
+/* โค้ดของมึงที่เหลือ (รวมลูกตาและ Form Validation) ใส่ต่อท้ายตรงนี้ได้เลย */
+document.addEventListener('DOMContentLoaded', function() {
     // 1. จัดการระบบธีม (Theme Management)
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
