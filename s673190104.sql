@@ -1,6 +1,6 @@
 -- 1. สร้าง Database
-CREATE DATABASE IF NOT EXISTS library_system DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
-USE library_system;
+CREATE DATABASE IF NOT EXISTS s673190104 DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+USE s673190104;
 
 -- 2. สร้างตารางผู้ใช้งาน (Users)
 CREATE TABLE users (
