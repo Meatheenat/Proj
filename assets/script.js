@@ -81,4 +81,50 @@ function handleForgotPass() {
             alert("ระบบได้รับเรื่องแล้ว กรุณารอการติดต่อกลับจาก Admin");
         }
     }
+    document.addEventListener('DOMContentLoaded', function() {
+    const themeToggle = document.getElementById('themeToggle');
+    const html = document.documentElement;
+
+    // 1. โหลดธีมที่บันทึกไว้
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    html.setAttribute('data-bs-theme', savedTheme);
+    updateIcon(savedTheme);
+
+    // 2. ระบบสลับธีม
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+            const currentTheme = html.getAttribute('data-bs-theme');
+            const newTheme = (currentTheme === 'light') ? 'dark' : 'light';
+            
+            html.setAttribute('data-bs-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateIcon(newTheme);
+        });
+    }
+
+    // 3. ระบบลูกตาเปิด-ปิดรหัสผ่าน
+    document.querySelectorAll('.toggle-password').forEach(button => {
+        button.addEventListener('click', function() {
+            const target = document.getElementById(this.getAttribute('data-target'));
+            const icon = this.querySelector('i');
+            if (target.type === 'password') {
+                target.type = 'text';
+                icon.classList.replace('bi-eye-slash', 'bi-eye');
+            } else {
+                target.type = 'password';
+                icon.classList.replace('bi-eye', 'bi-eye-slash');
+            }
+        });
+    });
+});
+
+function updateIcon(theme) {
+    const icon = document.getElementById('themeIcon');
+    if (!icon) return;
+    if (theme === 'dark') {
+        icon.className = 'bi bi-sun-fill text-warning';
+    } else {
+        icon.className = 'bi bi-moon-stars-fill text-white';
+    }
+}
 }

@@ -104,3 +104,36 @@ body {
         width: 100%; /* ปุ่มเต็มจอในมือถือ */
     }
 }
+/* --- Light Mode (Default) --- */
+:root {
+    --bg-body: #f8f9fa;
+    --bg-card: #ffffff;
+    --text-main: #212529;
+    --primary-color: #4e73df;
+}
+
+/* --- Dark Mode (เมื่อกดปุ่ม) --- */
+[data-bs-theme="dark"] {
+    --bg-body: #121212;
+    --bg-card: #1e1e1e;
+    --text-main: #f8f9fa;
+}
+
+body {
+    background-color: var(--bg-body) !important;
+    color: var(--text-main) !important;
+    font-family: 'Sarabun', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.card {
+    background-color: var(--bg-card) !important;
+    color: var(--text-main) !important;
+    border: none;
+}
+
+/* รักษาสไตล์ปุ่มของมึงไว้ */
+.btn-primary {
+    background-color: var(--primary-color) !important;
+    border: none;
+}
