@@ -15,14 +15,14 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
   <div class="container">
     <a class="navbar-brand fw-bold" href="index.php">LibraryMobile</a>
-    <div class="ms-auto text-white d-flex align-items-center">
-        <button class="btn btn-link text-white me-2" id="themeToggle" type="button" style="text-decoration: none;">
-            <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
+    <div class="ms-auto d-flex align-items-center">
+        <button class="btn btn-link p-0 me-3" id="themeToggle" type="button">
+            <i class="bi bi-moon-stars-fill text-white" id="themeIcon"></i>
         </button>
-        
+        <a href='login.php' class='btn btn-outline-light btn-sm'>เข้าสู่ระบบ</a>
     </div>
   </div>
 </nav>

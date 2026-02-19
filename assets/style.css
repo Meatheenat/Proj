@@ -48,3 +48,18 @@ body {
 [data-bs-theme="dark"] .text-muted {
     color: #b0b0b0 !important;
 }
+/* เพิ่มเติมจาก CSS เดิม */
+.custom-nav {
+    background-color: var(--nav-bg) !important;
+    transition: background-color 0.3s;
+}
+
+/* ปรับให้ข้อความใน Navbar เป็นสีขาวเสมอ หรือเปลี่ยนตามธีม */
+.custom-nav .navbar-brand, 
+.custom-nav .nav-link {
+    color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .custom-nav {
+    border-bottom: 1px solid #333; /* เพิ่มเส้นคั่นนิดหน่อยใน Dark mode */
+}
