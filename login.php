@@ -6,9 +6,7 @@
     <title>เข้าสู่ระบบ - Library System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/style.css">
-    
     <style>
         body { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .login-card { width: 100%; max-width: 400px; padding: 20px; border-radius: 15px; }
