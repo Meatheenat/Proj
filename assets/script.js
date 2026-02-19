@@ -13,10 +13,25 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+});
 
-    // ==========================================
-    // ระบบเปิด-ปิดตา (Show/Hide Password)
-    // ==========================================
+// ฟังก์ชันสำหรับหน้าลืมรหัสผ่าน (Simulate)
+function handleForgotPass() {
+    const forgotInput = document.querySelector('#forgot_user');
+    if(forgotInput) {
+        const username = forgotInput.value;
+        if(username === "") {
+            alert("กรุณากรอก Username");
+        } else {
+            alert("ระบบได้รับเรื่องแล้ว กรุณารอการติดต่อกลับจาก Admin");
+        }
+    }
+} // <--- เติมปิดปีกกาตรงนี้ เพื่อให้โค้ดระบบสลับธีมข้างล่างทำงานได้!!
+
+// ==========================================
+// ระบบเปิด-ปิดตา (Show/Hide Password)
+// ==========================================
+document.addEventListener('DOMContentLoaded', function() {
     const togglePasswordButtons = document.querySelectorAll('.toggle-password');
     
     togglePasswordButtons.forEach(button => {
@@ -36,20 +51,20 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+});
 
-    // ==========================================
-    // ระบบสลับธีม Dark / Light Mode
-    // ==========================================
+// ==========================================
+// ระบบสลับธีม Dark / Light Mode
+// ==========================================
+document.addEventListener('DOMContentLoaded', function() {
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
     const htmlElement = document.documentElement;
 
-    // 1. เช็คธีมที่เคยเก็บไว้ใน LocalStorage
     const currentTheme = localStorage.getItem('theme') || 'light';
     htmlElement.setAttribute('data-bs-theme', currentTheme);
-    if(themeIcon) updateIcon(currentTheme);
+    if (themeIcon) updateIcon(currentTheme);
 
-    // 2. เมื่อกดปุ่มสลับธีม
     if (themeToggle) {
         themeToggle.addEventListener('click', () => {
             let theme = htmlElement.getAttribute('data-bs-theme');
@@ -60,32 +75,16 @@ document.addEventListener('DOMContentLoaded', function() {
             updateIcon(newTheme);
         });
     }
-
-    // ฟังก์ชันเปลี่ยนไอคอน (อยู่ข้างในเพื่อให้เข้าถึง themeIcon ได้)
-    function updateIcon(theme) {
-        const icon = document.getElementById('themeIcon');
-        if(!icon) return;
-        if (theme === 'dark') {
-            icon.classList.remove('bi-moon-stars-fill');
-            icon.classList.add('bi-sun-fill');
-            icon.style.color = '#ffc107'; // สีเหลืองทอง
-        } else {
-            icon.classList.remove('bi-sun-fill');
-            icon.classList.add('bi-moon-stars-fill');
-            icon.style.color = '#ffffff';
-        }
-    }
 });
 
-// ฟังก์ชันสำหรับหน้าลืมรหัสผ่าน (Simulate) - แยกไว้ข้างนอกตามโครงเดิม
-function handleForgotPass() {
-    const forgotInput = document.querySelector('#forgot_user');
-    if(forgotInput) {
-        const username = forgotInput.value;
-        if(username === "") {
-            alert("กรุณากรอก Username");
-        } else {
-            alert("ระบบได้รับเรื่องแล้ว กรุณารอการติดต่อกลับจาก Admin");
-        }
+function updateIcon(theme) {
+    const themeIcon = document.getElementById('themeIcon');
+    if (!themeIcon) return;
+    if (theme === 'dark') {
+        themeIcon.classList.replace('bi-moon-stars-fill', 'bi-sun-fill');
+        themeIcon.style.color = '#ffc107';
+    } else {
+        themeIcon.classList.replace('bi-sun-fill', 'bi-moon-stars-fill');
+        themeIcon.style.color = '#ffffff';
     }
 }
