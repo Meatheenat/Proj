@@ -28,28 +28,41 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
     <link rel="stylesheet" href="assets/style.css">
     
     <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #f8f9fa; }
+        /* สไตล์เพิ่มเติมเฉพาะหน้า Index */
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color, #4e73df) 0%, #224abe 100%);
+            border-radius: 20px;
+            color: white;
+        }
+        [data-bs-theme="dark"] .hero-section {
+            background: linear-gradient(135deg, #1e1e1e 0%, #333 100%);
+            border: 1px solid #444;
+        }
         .book-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border-radius: 12px;
-            overflow: hidden;
             border: none;
+            border-radius: 15px;
+            transition: all 0.3s ease;
         }
         .book-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transform: translateY(-10px);
         }
-        .book-cover-placeholder {
-            height: 200px;
-            background: linear-gradient(135deg, #4e73df, #224abe);
-            color: white;
+        .book-img-placeholder {
+            height: 220px;
+            background: #eee;
+            border-radius: 15px 15px 0 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
+            font-size: 4rem;
+            color: #ccc;
+        }
+        [data-bs-theme="dark"] .book-img-placeholder {
+            background: #2a2a2a;
+            color: #444;
         }
     </style>
 </head>
@@ -57,69 +70,92 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
   <div class="container">
-    <a class="navbar-brand fw-bold" href="index.php"><i class="bi bi-book-half me-2"></i>LibraryMobile</a>
-    <div class="ms-auto text-white d-flex align-items-center">
-        <span class="me-3 d-none d-sm-inline">สวัสดี, <?php echo htmlspecialchars($_SESSION['fullname']); ?></span>
-        <a href='logout.php' class='btn btn-outline-danger btn-sm fw-bold'>ออกจากระบบ</a>
+    <a class="navbar-brand fw-bold" href="index.php">
+        <i class="bi bi-book-half me-2"></i>LibraryMobile
+    </a>
+    
+    <div class="ms-auto d-flex align-items-center">
+        <button class="btn btn-link text-white me-3 p-0" id="themeToggle" type="button" style="text-decoration: none;">
+            <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
+        </button>
+
+        <div class="dropdown">
+            <button class="btn btn-outline-light btn-sm dropdown-toggle fw-bold px-3" type="button" data-bs-toggle="dropdown">
+                <i class="bi bi-person-circle me-1"></i> <?php echo htmlspecialchars($_SESSION['fullname']); ?>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow">
+                <li><a class="dropdown-item" href="history.php"><i class="bi bi-clock-history me-2"></i>ประวัติของฉัน</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i>ออกจากระบบ</a></li>
+            </ul>
+        </div>
     </div>
   </div>
-  <button class="btn btn-link text-white me-2" id="themeToggle" type="button">
-    <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
-</button>
 </nav>
 
 <div class="container mt-4 mb-5">
     
-    <div class="card bg-white shadow-sm border-0 mb-4" style="border-radius: 15px;">
-        <div class="card-body p-4 p-md-5 d-flex flex-column flex-md-row justify-content-between align-items-center">
-            <div class="text-center text-md-start mb-4 mb-md-0">
-                <h2 class="fw-bold text-primary mb-2">ยินดีต้อนรับสู่ระบบห้องสมุด</h2>
-                <p class="text-muted mb-0">ค้นหาหนังสือที่คุณสนใจ และทำรายการยืม-คืนได้ง่ายๆ ผ่านมือถือของคุณ</p>
-            </div>
-            <div class="d-flex flex-wrap gap-2 justify-content-center">
-                <a href="books.php" class="btn btn-primary btn-lg fw-bold px-4"><i class="bi bi-search me-2"></i>ค้นหาหนังสือ</a>
-                
-                <a href="return_book.php" class="btn btn-success btn-lg fw-bold px-4"><i class="bi bi-arrow-left-right me-2"></i>คืนหนังสือ</a>
-                
-                <a href="history.php" class="btn btn-outline-secondary btn-lg fw-bold px-4"><i class="bi bi-clock-history me-2"></i>ประวัติของฉัน</a>
-                
-                <?php if(isset($_SESSION['role']) && $_SESSION['role'] == 'admin') { ?>
-                    <a href="admin_dashboard.php" class="btn btn-dark btn-lg fw-bold px-4"><i class="bi bi-gear me-2"></i>แอดมิน</a>
-                <?php } ?>
+    <div class="hero-section shadow-sm mb-5">
+        <div class="p-4 p-md-5">
+            <div class="row align-items-center">
+                <div class="col-md-7 text-center text-md-start">
+                    <h1 class="fw-bold mb-3">สวัสดีครับคุณ, <?php echo explode(' ', $_SESSION['fullname'])[0]; ?>!</h1>
+                    <p class="lead mb-4 opacity-75">เข้าถึงความรู้ได้ทุกที่ ค้นหาหนังสือที่ใช่ และทำรายการยืม-คืนได้รวดเร็วผ่านระบบออนไลน์</p>
+                    <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-md-start">
+                        <a href="books.php" class="btn btn-light btn-lg fw-bold px-4 text-primary"><i class="bi bi-search me-2"></i>ค้นหาหนังสือ</a>
+                        <a href="return_book.php" class="btn btn-success btn-lg fw-bold px-4 shadow-sm"><i class="bi bi-arrow-left-right me-2"></i>คืนหนังสือ</a>
+                    </div>
+                </div>
+                <div class="col-md-5 d-none d-md-block text-center">
+                    <i class="bi bi-journal-bookmark-fill" style="font-size: 8rem; opacity: 0.2;"></i>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="d-flex justify-content-between align-items-center mb-3 mt-5">
-        <h4 class="fw-bold text-dark m-0"><i class="bi bi-star-fill text-warning me-2"></i>หนังสือแนะนำที่น่าสนใจ</h4>
-        <a href="books.php" class="text-decoration-none">ดูทั้งหมด <i class="bi bi-arrow-right"></i></a>
+    <?php if(isset($_SESSION['role']) && $_SESSION['role'] == 'admin') { ?>
+    <div class="alert alert-dark border-0 shadow-sm d-flex justify-content-between align-items-center p-3 mb-5" style="border-radius: 15px;">
+        <span class="fw-bold"><i class="bi bi-shield-lock-fill me-2 text-warning"></i>ส่วนจัดการสำหรับแอดมิน</span>
+        <a href="admin_dashboard.php" class="btn btn-warning btn-sm fw-bold">เข้าสู่ระบบหลังบ้าน</a>
+    </div>
+    <?php } ?>
+
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h3 class="fw-bold m-0"><i class="bi bi-stars text-warning me-2"></i>หนังสือแนะนำ</h3>
+            <p class="text-muted m-0">สุ่มหนังสือใหม่ๆ มาให้คุณเลือกอ่าน</p>
+        </div>
+        <a href="books.php" class="btn btn-outline-primary fw-bold rounded-pill">ดูทั้งหมด</a>
     </div>
 
     <div class="row g-4">
         <?php 
         if($result_recommend && mysqli_num_rows($result_recommend) > 0) {
             while($book = mysqli_fetch_assoc($result_recommend)) {
-                $status_text = ($book['status'] == 'available') ? 'ว่าง (ยืมได้)' : 'ถูกยืมแล้ว';
-                $status_color = ($book['status'] == 'available') ? 'bg-success' : 'bg-danger';
+                $is_available = ($book['status'] == 'available');
+                $status_text = $is_available ? 'ว่าง' : 'ถูกยืมแล้ว';
+                $status_color = $is_available ? 'bg-success' : 'bg-danger';
         ?>
         
         <div class="col-6 col-md-4 col-lg-3">
             <div class="card book-card h-100 shadow-sm">
-                <div class="book-cover-placeholder">
+                <div class="book-img-placeholder">
                     <i class="bi bi-book"></i>
                 </div>
                 <div class="card-body d-flex flex-column">
-                    <span class="badge <?php echo $status_color; ?> mb-2 align-self-start"><?php echo $status_text; ?></span>
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge <?php echo $status_color; ?> rounded-pill"><?php echo $status_text; ?></span>
+                    </div>
                     <h6 class="card-title fw-bold text-truncate" title="<?php echo htmlspecialchars($book['book_name']); ?>">
                         <?php echo htmlspecialchars($book['book_name']); ?>
                     </h6>
-                    <p class="card-text text-muted small mb-3">ผู้แต่ง: <?php echo htmlspecialchars($book['author']); ?></p>
+                    <p class="card-text text-muted small mb-3">โดย: <?php echo htmlspecialchars($book['author']); ?></p>
                     
                     <div class="mt-auto">
-                        <?php if($book['status'] == 'available') { ?>
-                            <a href="borrow.php?id=<?php echo $book['book_id']; ?>" class="btn btn-outline-primary btn-sm w-100 fw-bold">ขอยืมเล่มนี้</a>
+                        <?php if($is_available) { ?>
+                            <a href="borrow.php?id=<?php echo $book['book_id']; ?>" class="btn btn-primary btn-sm w-100 fw-bold rounded-pill shadow-sm">ยืมเล่มนี้</a>
                         <?php } else { ?>
-                            <button class="btn btn-secondary btn-sm w-100 fw-bold" disabled>ไม่ว่าง</button>
+                            <button class="btn btn-secondary btn-sm w-100 fw-bold rounded-pill" disabled>ไม่ว่าง</button>
                         <?php } ?>
                     </div>
                 </div>
@@ -129,12 +165,19 @@ $result_recommend = mysqli_query($conn, $sql_recommend);
         <?php 
             }
         } else {
-            echo "<div class='col-12'><p class='text-center text-muted'>ยังไม่มีข้อมูลหนังสือในระบบ</p></div>";
+            echo "<div class='col-12 text-center py-5'><i class='bi bi-inbox text-muted' style='font-size: 3rem;'></i><p class='text-muted mt-2'>ไม่พบข้อมูลหนังสือในขณะนี้</p></div>";
         }
         ?>
     </div>
 
 </div>
+
+<footer class="bg-dark text-white py-4 mt-5">
+    <div class="container text-center">
+        <p class="mb-1 fw-bold">LibraryMobile System</p>
+        <p class="small opacity-50 mb-0">© 2026 ระบบจัดการห้องสมุดยุคใหม่ - พัฒนาเพื่อการเรียนรู้</p>
+    </div>
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="assets/script.js"></script>
