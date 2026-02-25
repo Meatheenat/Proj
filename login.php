@@ -102,7 +102,7 @@ if(isset($_SESSION['user_id'])) {
             <div class="text-center mb-4">
                 <i class="bi bi-book text-primary" style="font-size: 3.5rem;"></i>
                 <h3 class="fw-bold mt-2">เข้าสู่ระบบห้องสมุด</h3>
-                <p class="opacity-75 small">กรุณากรอกข้อมูลเพื่อค้นหาและยืมหนังสือ admin : P Password : 1234</p>
+                <p class="opacity-75 small">กรุณากรอกข้อมูลเพื่อค้นหาและยืมหนังสือ <br> admin : P Password : 1234</p>
             </div>
 
             <form action="auth_action.php" method="POST">
