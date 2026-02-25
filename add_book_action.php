@@ -1,26 +1,21 @@
 <?php
-// 1. เปิด Debug ทุกอย่าง
+// 1. ตั้งค่าให้สคริปต์รันได้ไม่จำกัดเวลา (ป้องกันการค้างเวลาอัปโหลดไฟล์ใหญ่)
+set_time_limit(0); 
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 session_start();
 include('config/db.php');
 
-// ตรวจสอบว่าถ้าส่งมาแล้ว Array ว่างจริง ให้เช็ค Error ของระบบ
+// ตรวจสอบว่าถ้าส่งมาแล้ว Array ว่าง (ส่วนใหญ่เป็นเพราะไฟล์ใหญ่เกินค่าที่ Server รับได้ใน .htaccess)
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
-    die("Error: ข้อมูลที่ส่งมาใหญ่เกินกว่าที่ Server จะรับได้ (Check post_max_size ใน php.ini)");
+    die("Error: ไฟล์ใหญ่เกินกว่าที่โฮสต์ของมรึงจะรับได้! (ไปแก้เลขใน .htaccess ให้สูงขึ้นครับ)");
 }
 
-// เช็คข้อมูลเบื้องต้น
 if (!isset($_POST['book_name'])) {
-    echo "หาตัวแปร book_name ไม่เจอ! <br> ข้อมูลที่ได้รับจากเครื่องมึง: <pre>";
-    print_r($_POST); // ดูค่าตัวหนังสือ
-    print_r($_FILES); // ดูค่ารูปภาพ
-    echo "</pre>";
-    die("จบการทำงาน: กรุณาเช็คว่าเลือกไฟล์รูปใหญ่เกินไปหรือไม่? หรือลองไม่เลือกรูปแล้วกดบันทึกดูครับ");
+    die("จบการทำงาน: ไม่ได้รับข้อมูลจากฟอร์ม");
 }
 
-// --- ถ้าผ่านจุดข้างบนมาได้ แสดงว่าข้อมูลมาแล้ว ---
 $book_name = mysqli_real_escape_string($conn, $_POST['book_name']);
 $author = mysqli_real_escape_string($conn, $_POST['author']);
 $duration = mysqli_real_escape_string($conn, $_POST['borrow_duration']);
@@ -29,12 +24,10 @@ $description = mysqli_real_escape_string($conn, $_POST['description'] ?? '');
 
 $image_name = NULL;
 
-// จัดการรูปภาพ (เพิ่มการเช็คขนาดไฟล์)
+// 2. ส่วนจัดการรูปภาพ (เอาตัวดัก 2MB ออกแล้ว!)
 if(isset($_FILES['book_image']) && $_FILES['book_image']['error'] == 0) {
-    if ($_FILES['book_image']['size'] > 2000000) { // เกิน 2MB
-        echo "<script>alert('ไฟล์รูปใหญ่เกินไป! ห้ามเกิน 2MB'); window.history.back();</script>";
-        exit();
-    }
+    
+    // หมายเหตุ: ผมเอาเงื่อนไข if size > 2000000 ออกให้ตามที่มรึงต้องการแล้วนะเพื่อน
     
     $ext = strtolower(pathinfo($_FILES['book_image']['name'], PATHINFO_EXTENSION));
     $new_name = "cover_" . time() . "_" . rand(100,999) . "." . $ext;
@@ -47,12 +40,12 @@ if(isset($_FILES['book_image']) && $_FILES['book_image']['error'] == 0) {
     }
 }
 
-// บันทึก
+// 3. บันทึกลงฐานข้อมูล
 $sql = "INSERT INTO books (book_name, author, category, borrow_duration, book_image, description, status) 
         VALUES ('$book_name', '$author', '$category', '$duration', '$image_name', '$description', 'available')";
 
 if(mysqli_query($conn, $sql)) {
-    echo "<script>alert('สำเร็จ!'); window.location.href='admin_dashboard.php';</script>";
+    echo "<script>alert('เพิ่มหนังสือเรียบร้อย!'); window.location.href='admin_dashboard.php';</script>";
 } else {
     echo "SQL Error: " . mysqli_error($conn);
 }
