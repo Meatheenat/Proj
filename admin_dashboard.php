@@ -219,8 +219,7 @@ $res_borrowed = mysqli_query($conn, $sql_borrowed);
                         </div>
                         <div class="col-md-5">
                             <div class="mb-3">
-                                <label class="form-label fw-bold small text-secondary">หมวดหมู่</label>
-                                <div class="mb-4">
+                                
     <label class="form-label fw-bold small text-secondary">หมวดหมู่หนังสือ</label>
     <select name="category" class="form-select form-select-lg shadow-sm">
         <option value="ทั่วไป">-- เลือกหมวดหมู่ --</option>
