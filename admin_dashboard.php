@@ -5,26 +5,21 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 session_start(); 
-// ตรวจสอบความปลอดภัย: ต้องเป็น Admin เท่านั้น
 if(!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin'){
     header("Location: login.php");
     exit();
 }
 
-include('config/db.php'); // เชื่อมต่อฐานข้อมูล
+include('config/db.php');
 
 // ดึงข้อมูลสมาชิก
-$sql_members = "SELECT user_id, username, fullname, role, status FROM users ORDER BY user_id DESC";
-$res_members = mysqli_query($conn, $sql_members);
+$res_members = mysqli_query($conn, "SELECT user_id, username, fullname, role, status FROM users ORDER BY user_id DESC");
 
-// ดึงรายการที่ค้างส่ง
-$sql_borrowed = "SELECT br.*, b.book_name, u.fullname 
-                 FROM borrow_records br
-                 JOIN books b ON br.book_id = b.book_id
-                 JOIN users u ON br.user_id = u.user_id
-                 WHERE br.status = 'pending'
-                 ORDER BY br.borrow_date ASC";
-$res_borrowed = mysqli_query($conn, $sql_borrowed);
+// ดึงข้อมูลหนังสือทั้งหมด (สำหรับจัดการ แก้ไข/ลบ)
+$res_all_books = mysqli_query($conn, "SELECT * FROM books ORDER BY book_id DESC");
+
+// ดึงรายการค้างส่ง
+$res_borrowed = mysqli_query($conn, "SELECT br.*, b.book_name, u.fullname FROM borrow_records br JOIN books b ON br.book_id = b.book_id JOIN users u ON br.user_id = u.user_id WHERE br.status = 'pending' ORDER BY br.borrow_date ASC");
 ?>
 <!DOCTYPE html>
 <html lang="th" data-bs-theme="light">
@@ -32,18 +27,12 @@ $res_borrowed = mysqli_query($conn, $sql_borrowed);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Console - Library System</title>
-    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
-
     <script>
-        (function() {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-bs-theme', savedTheme);
-        })();
+        (function() { const savedTheme = localStorage.getItem('theme') || 'light'; document.documentElement.setAttribute('data-bs-theme', savedTheme); })();
     </script>
-
     <style>
         [data-bs-theme="light"] { --bg-page: #f8f9fa; --bg-card: #ffffff; --text-color: #212529; --input-bg: #ffffff; --input-border: #dee2e6; }
         [data-bs-theme="dark"] { --bg-page: #121212; --bg-card: #1e1e1e; --text-color: #f8f9fa; --input-bg: #2b2b2b; --input-border: #444444; }
@@ -52,16 +41,14 @@ $res_borrowed = mysqli_query($conn, $sql_borrowed);
         .admin-card { background-color: var(--bg-card) !important; border-radius: 20px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important; }
         .nav-tabs .nav-link { color: var(--text-color); font-weight: 600; border: none; opacity: 0.6; }
         .nav-tabs .nav-link.active { color: #4e73df !important; background: transparent !important; border-bottom: 3px solid #4e73df !important; opacity: 1; }
-        .form-control, .form-select { background-color: var(--input-bg) !important; color: var(--text-color) !important; border-color: var(--input-border) !important; }
+        .table { color: var(--text-color) !important; }
     </style>
 </head>
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
   <div class="container">
-    <a class="navbar-brand fw-bold" href="index.php">
-        <i class="bi bi-shield-lock-fill me-2 text-warning"></i>Library Admin
-    </a>
+    <a class="navbar-brand fw-bold" href="index.php"><i class="bi bi-shield-lock-fill me-2 text-warning"></i>Library Admin</a>
     <div class="ms-auto d-flex align-items-center">
         <button class="btn btn-link text-white me-3 p-0" id="themeToggle" type="button"><i class="bi bi-moon-stars-fill" id="themeIcon"></i></button>
         <span class="text-white me-3 d-none d-md-inline small">แอดมิน: <?php echo htmlspecialchars($_SESSION['fullname']); ?></span>
@@ -73,12 +60,13 @@ $res_borrowed = mysqli_query($conn, $sql_borrowed);
 <div class="container mt-5 mb-5">
     <div class="mb-4">
         <h2 class="fw-bold m-0 text-primary">การจัดการระบบหลังบ้าน</h2>
-        <p class="text-muted small">จัดระเบียบสมาชิก และทรัพยากรห้องสมุด</p>
+        <p class="text-muted small">จัดระเบียบสมาชิก หนังสือ และการยืมคืน</p>
     </div>
 
     <ul class="nav nav-tabs mb-4 border-0" id="adminTab" role="tablist">
-        <li class="nav-item"><button class="nav-link active px-4 py-3" data-bs-toggle="tab" data-bs-target="#members" type="button"><i class="bi bi-people-fill me-2"></i>จัดการสมาชิก</button></li>
-        <li class="nav-item"><button class="nav-link px-4 py-3" data-bs-toggle="tab" data-bs-target="#addbook" type="button"><i class="bi bi-plus-circle-fill me-2"></i>เพิ่มหนังสือใหม่</button></li>
+        <li class="nav-item"><button class="nav-link active px-4 py-3" data-bs-toggle="tab" data-bs-target="#members" type="button"><i class="bi bi-people-fill me-2"></i>สมาชิก</button></li>
+        <li class="nav-item"><button class="nav-link px-4 py-3" data-bs-toggle="tab" data-bs-target="#managebooks" type="button"><i class="bi bi-journal-bookmark-fill me-2"></i>คลังหนังสือ</button></li>
+        <li class="nav-item"><button class="nav-link px-4 py-3" data-bs-toggle="tab" data-bs-target="#addbook" type="button"><i class="bi bi-plus-circle-fill me-2"></i>เพิ่มหนังสือ</button></li>
         <li class="nav-item"><button class="nav-link px-4 py-3" data-bs-toggle="tab" data-bs-target="#borrowed" type="button"><i class="bi bi-clock-history me-2"></i>รายการค้างส่ง</button></li>
     </ul>
 
@@ -88,7 +76,7 @@ $res_borrowed = mysqli_query($conn, $sql_borrowed);
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead class="table-dark">
-                            <tr><th>ชื่อ-นามสกุล</th><th>บทบาท</th><th>สถานะ</th><th class="text-center">เปลี่ยนสิทธิ์</th><th class="text-center">การจัดการ</th></tr>
+                            <tr><th>ชื่อ-นามสกุล</th><th>บทบาท</th><th>สถานะ</th><th>เปลี่ยนสิทธิ์</th><th class="text-center">จัดการ</th></tr>
                         </thead>
                         <tbody>
                             <?php while($user = mysqli_fetch_assoc($res_members)) { $is_banned = ($user['status'] == 'banned'); ?>
@@ -96,10 +84,10 @@ $res_borrowed = mysqli_query($conn, $sql_borrowed);
                                 <td><div class="fw-bold"><?php echo htmlspecialchars($user['fullname']); ?></div><small class="opacity-50">@<?php echo htmlspecialchars($user['username']); ?></small></td>
                                 <td><span class="badge rounded-pill <?php echo ($user['role'] == 'admin') ? 'bg-danger' : 'bg-primary'; ?>"><?php echo strtoupper($user['role']); ?></span></td>
                                 <td><span class="badge rounded-pill <?php echo $is_banned ? 'bg-secondary' : 'bg-success'; ?>"><?php echo $is_banned ? 'ถูกระงับ' : 'ปกติ'; ?></span></td>
-                                <td class="text-center">
+                                <td>
                                     <form action="manage_user_action.php" method="POST" class="d-inline">
                                         <input type="hidden" name="user_id" value="<?php echo $user['user_id']; ?>">
-                                        <select name="new_role" class="form-select form-select-sm d-inline-block w-auto" onchange="confirmRoleChange(this, '<?php echo $user['fullname']; ?>', '<?php echo $user['role']; ?>')">
+                                        <select name="new_role" class="form-select form-select-sm w-auto d-inline" onchange="this.form.submit()">
                                             <option value="user" <?php if($user['role'] == 'user') echo 'selected'; ?>>User</option>
                                             <option value="admin" <?php if($user['role'] == 'admin') echo 'selected'; ?>>Admin</option>
                                         </select>
@@ -108,8 +96,44 @@ $res_borrowed = mysqli_query($conn, $sql_borrowed);
                                 </td>
                                 <td class="text-center">
                                     <?php if($user['user_id'] != $_SESSION['user_id']) { ?>
-                                        <a href="manage_user_action.php?id=<?php echo $user['user_id']; ?>&action=toggle_status&status=<?php echo $user['status']; ?>" class="btn btn-sm <?php echo $is_banned ? 'btn-outline-success' : 'btn-outline-danger'; ?> fw-bold rounded-pill px-3" onclick="return confirm('ยืนยัน?')"><?php echo $is_banned ? 'ปลดแบน' : 'แบน'; ?></a>
-                                    <?php } else { echo '<span class="text-muted small">ตัวคุณเอง</span>'; } ?>
+                                        <a href="manage_user_action.php?id=<?php echo $user['user_id']; ?>&action=toggle_status&status=<?php echo $user['status']; ?>" class="btn btn-sm <?php echo $is_banned ? 'btn-outline-success' : 'btn-outline-danger'; ?> rounded-pill px-3" onclick="return confirm('ยืนยัน?')"><?php echo $is_banned ? 'ปลดแบน' : 'แบน'; ?></a>
+                                    <?php } ?>
+                                </td>
+                            </tr>
+                            <?php } ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="managebooks" role="tabpanel">
+            <div class="card admin-card p-4">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-dark">
+                            <tr><th>หน้าปก</th><th>ชื่อหนังสือ</th><th>หมวดหมู่</th><th>สถานะ</th><th class="text-center">การจัดการ</th></tr>
+                        </thead>
+                        <tbody>
+                            <?php while($b = mysqli_fetch_assoc($res_all_books)) { ?>
+                            <tr>
+                                <td>
+                                    <?php if($b['book_image']): ?>
+                                        <img src="assets/img/covers/<?= $b['book_image'] ?>" width="40" height="55" style="object-fit: cover; border-radius: 4px;">
+                                    <?php else: ?>
+                                        <i class="bi bi-book opacity-25"></i>
+                                    <?php endif; ?>
+                                </td>
+                                <td><div class="fw-bold"><?= htmlspecialchars($b['book_name']) ?></div></td>
+                                <td><?= htmlspecialchars($b['category']) ?></td>
+                                <td><span class="badge rounded-pill <?= ($b['status'] == 'available') ? 'bg-success' : 'bg-danger' ?>"><?= ($b['status'] == 'available') ? 'ว่าง' : 'ถูกยืม' ?></span></td>
+                                <td class="text-center">
+                                    <a href="edit_book.php?id=<?= $b['book_id'] ?>" class="btn btn-sm btn-outline-warning rounded-pill px-3 me-1"><i class="bi bi-pencil"></i></a>
+                                    <?php if($b['status'] == 'available'): ?>
+                                        <a href="delete_book_action.php?id=<?= $b['book_id'] ?>" class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="return confirm('ลบหนังสือเล่มนี้?')"><i class="bi bi-trash"></i></a>
+                                    <?php else: ?>
+                                        <button class="btn btn-sm btn-secondary rounded-pill px-3" disabled title="ถูกยืมอยู่ ลบไม่ได้"><i class="bi bi-lock-fill"></i></button>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                             <?php } ?>
@@ -121,52 +145,43 @@ $res_borrowed = mysqli_query($conn, $sql_borrowed);
 
         <div class="tab-pane fade" id="addbook" role="tabpanel">
             <div class="card admin-card mx-auto p-4 p-md-5" style="max-width: 800px;">
-                <h4 class="fw-bold mb-4 text-center text-primary"><i class="bi bi-book-half me-2"></i>เพิ่มหนังสือใหม่เข้าระบบ</h4>
-                
+                <h4 class="fw-bold mb-4 text-center text-primary"><i class="bi bi-plus-circle me-2"></i>เพิ่มหนังสือใหม่</h4>
                 <form action="add_book_action.php" method="POST" enctype="multipart/form-data">
                     <div class="row">
-                        <div class="col-md-7">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold small text-secondary">ชื่อหนังสือ</label>
-                                <input type="text" name="book_name" class="form-control form-control-lg" placeholder="ระบุชื่อหนังสือ" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label fw-bold small text-secondary">ชื่อผู้แต่ง</label>
-                                <input type="text" name="author" class="form-control" placeholder="ชื่อผู้แต่ง" required>
-                            </div>
+                        <div class="col-md-7 mb-3">
+                            <label class="form-label fw-bold small">ชื่อหนังสือ</label>
+                            <input type="text" name="book_name" class="form-control" required placeholder="ระบุชื่อหนังสือ">
                         </div>
-                        <div class="col-md-5">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold small text-secondary">หมวดหมู่หนังสือ</label>
-                                <select name="category" class="form-select form-select-lg shadow-sm">
-                                    <option value="ทั่วไป">-- เลือกหมวดหมู่ --</option>
-                                    <?php 
-                                    $sql_cat = "SELECT DISTINCT category FROM books WHERE category != '' ORDER BY category ASC";
-                                    $res_cat = mysqli_query($conn, $sql_cat);
-                                    while($cat_row = mysqli_fetch_assoc($res_cat)) {
-                                        echo "<option value='".htmlspecialchars($cat_row['category'])."'>".htmlspecialchars($cat_row['category'])."</option>";
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label fw-bold small text-secondary">ระยะเวลายืม (วัน)</label>
-                                <input type="text" name="borrow_duration" class="form-control" value="7,15,30">
-                            </div>
+                        <div class="col-md-5 mb-3">
+                            <label class="form-label fw-bold small">ชื่อผู้แต่ง</label>
+                            <input type="text" name="author" class="form-control" required placeholder="ชื่อผู้แต่ง">
                         </div>
                     </div>
-
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small">หมวดหมู่</label>
+                            <select name="category" class="form-select">
+                                <?php 
+                                $res_cat = mysqli_query($conn, "SELECT DISTINCT category FROM books WHERE category != '' ORDER BY category ASC");
+                                while($c = mysqli_fetch_assoc($res_cat)) { echo "<option value='".$c['category']."'>".$c['category']."</option>"; }
+                                ?>
+                                <option value="ทั่วไป">ทั่วไป</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small">ระยะเวลายืม (วัน)</label>
+                            <input type="text" name="borrow_duration" class="form-control" value="7,15,30">
+                        </div>
+                    </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold small text-secondary">รูปหน้าปก</label>
+                        <label class="form-label fw-bold small">รูปหน้าปก</label>
                         <input type="file" name="book_image" class="form-control" accept="image/*">
                     </div>
-
                     <div class="mb-4">
-                        <label class="form-label fw-bold small text-secondary">เรื่องย่อ</label>
-                        <textarea name="description" class="form-control" rows="5" placeholder="กรอกเรื่องย่อ..."></textarea>
+                        <label class="form-label fw-bold small">เรื่องย่อ / รายละเอียด</label>
+                        <textarea name="description" class="form-control" rows="4" placeholder="กรอกเรื่องย่อ..."></textarea>
                     </div>
-
-                    <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold rounded-pill py-3 shadow">บันทึกข้อมูลหนังสือ</button>
+                    <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold rounded-pill shadow">บันทึกข้อมูลเข้าฐานข้อมูล</button>
                 </form>
             </div>
         </div>
@@ -196,15 +211,14 @@ $res_borrowed = mysqli_query($conn, $sql_borrowed);
     </div>
 </div>
 
+[Image of an administrative dashboard UI with data tables and form elements in a clean dark theme layout]
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-function confirmRoleChange(selectObj, name, currentRole) { if (confirm(`เปลี่ยนสิทธิ์ ${name}?`)) selectObj.form.submit(); else selectObj.value = currentRole; }
-document.addEventListener('DOMContentLoaded', function() {
     const themeToggle = document.getElementById('themeToggle'); const themeIcon = document.getElementById('themeIcon'); const htmlElement = document.documentElement;
     function updateIcon(theme) { if (theme === 'dark') { themeIcon.classList.replace('bi-moon-stars-fill', 'bi-sun-fill'); themeIcon.style.color = '#ffc107'; } else { themeIcon.classList.replace('bi-sun-fill', 'bi-moon-stars-fill'); themeIcon.style.color = '#ffffff'; } }
     updateIcon(htmlElement.getAttribute('data-bs-theme'));
     themeToggle.addEventListener('click', function() { const currentTheme = htmlElement.getAttribute('data-bs-theme'); const newTheme = currentTheme === 'light' ? 'dark' : 'light'; htmlElement.setAttribute('data-bs-theme', newTheme); localStorage.setItem('theme', newTheme); updateIcon(newTheme); });
-});
 </script>
 </body>
 </html>
