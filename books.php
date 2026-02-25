@@ -113,30 +113,36 @@ $cat_result = mysqli_query($conn, $cat_sql);
                 $is_avail = ($book['status'] == 'available');
         ?>
         <div class="col-6 col-md-4 col-lg-3">
-            <div class="card book-card h-100 shadow-sm border-0">
-                <div class="book-cover-container">
-                    <a href="book_details.php?id=<?php echo $book['book_id']; ?>" class="text-decoration-none text-reset">
-    </a>
-                    <?php if(!empty($book['book_image']) && file_exists("assets/img/covers/" . $book['book_image'])): ?>
-                        <img src="assets/img/covers/<?php echo $book['book_image']; ?>" class="book-cover-img" alt="หน้าปก">
-                    <?php else: ?>
-                        <div class="text-center"><i class="bi bi-book fs-1 text-muted"></i><div class="small text-muted opacity-50 mt-1">ไม่มีรูป</div></div>
-                    <?php endif; ?>
-                </div>
-                <div class="card-body d-flex flex-column p-3">
-                    <span class="badge <?= $is_avail ? 'bg-success' : 'bg-danger' ?> mb-2 align-self-start"><?= $is_avail ? 'ว่าง' : 'ถูกยืม' ?></span>
-                    <h6 class="card-title fw-bold text-truncate"><?= htmlspecialchars($book['book_name']) ?></h6>
-                    <p class="card-text opacity-75 small mb-3"><?= htmlspecialchars($book['author']) ?></p>
-                    <div class="mt-auto">
-                        <?php if($is_avail) { ?>
-                            <a href="borrow.php?id=<?= $book['book_id'] ?>" class="btn btn-primary btn-sm w-100 fw-bold rounded-pill">ยืมเล่มนี้</a>
-                        <?php } else { ?>
-                            <button class="btn btn-secondary btn-sm w-100 fw-bold rounded-pill opacity-50" disabled>ไม่ว่าง</button>
-                        <?php } ?>
+    <div class="card book-card h-100 shadow-sm border-0">
+        <a href="book_details.php?id=<?php echo $book['book_id']; ?>" class="text-decoration-none">
+            <div class="book-cover-container">
+                <?php if(!empty($book['book_image']) && file_exists("assets/img/covers/" . $book['book_image'])): ?>
+                    <img src="assets/img/covers/<?php echo $book['book_image']; ?>" class="book-cover-img" alt="หน้าปก">
+                <?php else: ?>
+                    <div class="text-center">
+                        <i class="bi bi-book fs-1 text-muted"></i>
+                        <div class="small text-muted opacity-50 mt-1">ไม่มีรูป</div>
                     </div>
-                </div>
+                <?php endif; ?>
+            </div>
+        </a>
+        
+        <div class="card-body d-flex flex-column p-3">
+            <span class="badge <?= $is_avail ? 'bg-success' : 'bg-danger' ?> mb-2 align-self-start"><?= $is_avail ? 'ว่าง' : 'ถูกยืม' ?></span>
+            <a href="book_details.php?id=<?php echo $book['book_id']; ?>" class="text-decoration-none text-reset">
+                <h6 class="card-title fw-bold text-truncate"><?= htmlspecialchars($book['book_name']) ?></h6>
+            </a>
+            <p class="card-text opacity-75 small mb-3"><?= htmlspecialchars($book['author']) ?></p>
+            <div class="mt-auto">
+                <?php if($is_avail) { ?>
+                    <a href="borrow.php?id=<?= $book['book_id'] ?>" class="btn btn-primary btn-sm w-100 fw-bold rounded-pill">ยืมเล่มนี้</a>
+                <?php } else { ?>
+                    <button class="btn btn-secondary btn-sm w-100 fw-bold rounded-pill opacity-50" disabled>ไม่ว่าง</button>
+                <?php } ?>
             </div>
         </div>
+    </div>
+</div>
         <?php } } else { ?>
             <div class="col-12 text-center py-5 opacity-50"><h5>ไม่พบหนังสือที่ค้นหา</h5></div>
         <?php } ?>
