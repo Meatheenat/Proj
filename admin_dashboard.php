@@ -220,14 +220,26 @@ $res_borrowed = mysqli_query($conn, $sql_borrowed);
                         <div class="col-md-5">
                             <div class="mb-3">
                                 <label class="form-label fw-bold small text-secondary">หมวดหมู่</label>
-                                <select name="category" class="form-select">
-                                    <option value="ทั่วไป">ทั่วไป</option>
-                                    <option value="นิยาย">นิยาย</option>
-                                    <option value="วิชาการ">วิชาการ</option>
-                                    <option value="การ์ตูน">การ์ตูน</option>
-                                    <option value="IT">IT / เทคโนโลยี</option>
-                                    <option value="จิตวิทยา">จิตวิทยา / พัฒนาตนเอง</option>
-                                </select>
+                                <div class="mb-4">
+    <label class="form-label fw-bold small text-secondary">หมวดหมู่หนังสือ</label>
+    <select name="category" class="form-select form-select-lg shadow-sm">
+        <option value="ทั่วไป">-- เลือกหมวดหมู่ --</option>
+        <?php 
+        // ดึงหมวดหมู่ทั้งหมดที่มีอยู่ในฐานข้อมูลตอนนี้ (ไม่ซ้ำกัน)
+        $sql_cat = "SELECT DISTINCT category FROM books WHERE category IS NOT NULL AND category != '' ORDER BY category ASC";
+        $res_cat = mysqli_query($conn, $sql_cat);
+
+        if(mysqli_num_rows($res_cat) > 0) {
+            while($cat_row = mysqli_fetch_assoc($res_cat)) {
+                $cat_name = $cat_row['category'];
+                echo "<option value='".htmlspecialchars($cat_name)."'>".htmlspecialchars($cat_name)."</option>";
+            }
+        }
+        ?>
+        <option value="ทั่วไป">อื่นๆ (ระบุในรายละเอียด)</option>
+    </select>
+    <div class="form-text small opacity-50">หมวดหมู่จะอัปเดตอัตโนมัติตามข้อมูลที่มีอยู่ในฐานข้อมูล</div>
+</div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold small text-secondary">จำนวนวันยืม (คั่นด้วย ,)</label>
