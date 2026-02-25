@@ -201,39 +201,60 @@ $res_borrowed = mysqli_query($conn, $sql_borrowed);
         </div>
 
         <div class="tab-pane fade" id="addbook" role="tabpanel">
-            <div class="card admin-card mx-auto p-4 p-md-5" style="max-width: 700px;">
-                <h4 class="fw-bold mb-4 text-center">เพิ่มหนังสือใหม่เข้าระบบ</h4>
+            <div class="card admin-card mx-auto p-4 p-md-5" style="max-width: 800px;">
+                <h4 class="fw-bold mb-4 text-center text-primary">
+                    <i class="bi bi-book-half me-2"></i>เพิ่มหนังสือใหม่เข้าระบบ
+                </h4>
                 <form action="add_book_action.php" method="POST" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small">ชื่อหนังสือ</label>
-                        <input type="text" name="book_name" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small">รูปหน้าปกหนังสือ</label>
-                        <input type="file" name="book_image" class="form-control" accept="image/*">
-                    </div>
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold small">ชื่อผู้แต่ง</label>
-                            <input type="text" name="author" class="form-control" required>
+                        <div class="col-md-7">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-secondary">ชื่อหนังสือ</label>
+                                <input type="text" name="book_name" class="form-control form-control-lg" placeholder="ระบุชื่อหนังสือ" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-secondary">ชื่อผู้แต่ง</label>
+                                <input type="text" name="author" class="form-control" placeholder="ชื่อผู้แต่ง / นามปากกา" required>
+                            </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold small">จำนวนวันยืม (คั่นด้วย ,)</label>
-                            <input type="text" name="borrow_duration" class="form-control" value="7,15,30">
+                        <div class="col-md-5">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-secondary">หมวดหมู่</label>
+                                <select name="category" class="form-select">
+                                    <option value="ทั่วไป">ทั่วไป</option>
+                                    <option value="นิยาย">นิยาย</option>
+                                    <option value="วิชาการ">วิชาการ</option>
+                                    <option value="การ์ตูน">การ์ตูน</option>
+                                    <option value="IT">IT / เทคโนโลยี</option>
+                                    <option value="จิตวิทยา">จิตวิทยา / พัฒนาตนเอง</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-secondary">จำนวนวันยืม (คั่นด้วย ,)</label>
+                                <input type="text" name="borrow_duration" class="form-control" value="7,15,30" placeholder="เช่น 7,14,30">
+                            </div>
                         </div>
                     </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-secondary">รูปหน้าปกหนังสือ</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-dark"><i class="bi bi-image"></i></span>
+                            <input type="file" name="book_image" class="form-control" accept="image/*">
+                        </div>
+                        <div class="form-text small text-muted">แนะนำขนาดไฟล์ไม่เกิน 2MB (JPG, PNG)</div>
+                    </div>
+
                     <div class="mb-4">
-                        <label class="form-label fw-bold small">หมวดหมู่</label>
-                        <select name="category" class="form-select">
-                            <option value="ทั่วไป">ทั่วไป</option>
-                            <option value="นิยาย">นิยาย</option>
-                            <option value="วิชาการ">วิชาการ</option>
-                            <option value="การ์ตูน">การ์ตูน</option>
-                        </select>
+                        <label class="form-label fw-bold small text-secondary">รายละเอียดหนังสือ / เรื่องย่อ</label>
+                        <textarea name="description" class="form-control" rows="5" placeholder="กรอกข้อมูลเบื้องต้นหรือเรื่องย่อของหนังสือ..."></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100 fw-bold rounded-pill py-3 shadow">
-                        <i class="bi bi-cloud-arrow-up-fill me-2"></i>บันทึกข้อมูลและรูปภาพ
-                    </button>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold rounded-pill py-3 shadow">
+                            <i class="bi bi-cloud-arrow-up-fill me-2"></i>บันทึกข้อมูลและอัปโหลดรูปภาพ
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -280,17 +301,15 @@ $res_borrowed = mysqli_query($conn, $sql_borrowed);
     </div>
 </div>
 
-
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
 function confirmRoleChange(selectObj, name, currentRole) {
     const newRole = selectObj.value;
     if (confirm(`คุณต้องการเปลี่ยนสิทธิ์ของ "${name}" เป็น ${newRole.toUpperCase()} ใช่หรือไม่?`)) {
-        selectObj.form.submit(); // ส่งฟอร์มไปที่ manage_user_action.php
+        selectObj.form.submit();
     } else {
-        selectObj.value = currentRole; // กดยกเลิก ให้คืนค่าเดิม
+        selectObj.value = currentRole;
     }
 }
 
