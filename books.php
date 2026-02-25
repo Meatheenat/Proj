@@ -115,6 +115,8 @@ $cat_result = mysqli_query($conn, $cat_sql);
         <div class="col-6 col-md-4 col-lg-3">
             <div class="card book-card h-100 shadow-sm border-0">
                 <div class="book-cover-container">
+                    <a href="book_details.php?id=<?php echo $book['book_id']; ?>" class="text-decoration-none text-reset">
+    </a>
                     <?php if(!empty($book['book_image']) && file_exists("assets/img/covers/" . $book['book_image'])): ?>
                         <img src="assets/img/covers/<?php echo $book['book_image']; ?>" class="book-cover-img" alt="หน้าปก">
                     <?php else: ?>
