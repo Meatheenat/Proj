@@ -13,11 +13,11 @@ if(!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin'){
 
 include('config/db.php'); // เชื่อมต่อฐานข้อมูล
 
-// ดึงข้อมูลสมาชิก (บทบาท 'user' หรือ 'admin')
+// ดึงข้อมูลสมาชิก
 $sql_members = "SELECT user_id, username, fullname, role, status FROM users ORDER BY user_id DESC";
 $res_members = mysqli_query($conn, $sql_members);
 
-// ดึงรายการที่ค้างส่ง (Pending)
+// ดึงรายการที่ค้างส่ง (Pending) พร้อมคำนวณวันเกินกำหนด
 $sql_borrowed = "SELECT br.*, b.book_name, u.fullname 
                  FROM borrow_records br
                  JOIN books b ON br.book_id = b.book_id
@@ -45,52 +45,32 @@ $res_borrowed = mysqli_query($conn, $sql_borrowed);
     </script>
 
     <style>
-        /* --- นิยามตัวแปรสี Full Dark Mode เปลี่ยนทั้งหน้า --- */
         [data-bs-theme="light"] {
-            --bg-page: #f8f9fa;
-            --bg-card: #ffffff;
-            --text-color: #212529;
-            --input-bg: #ffffff;
-            --input-border: #dee2e6;
+            --bg-page: #f8f9fa; --bg-card: #ffffff; --text-color: #212529;
+            --input-bg: #ffffff; --input-border: #dee2e6;
         }
         [data-bs-theme="dark"] {
-            --bg-page: #121212;
-            --bg-card: #1e1e1e;
-            --text-color: #f8f9fa;
-            --input-bg: #2b2b2b;
-            --input-border: #444444;
+            --bg-page: #121212; --bg-card: #1e1e1e; --text-color: #f8f9fa;
+            --input-bg: #2b2b2b; --input-border: #444444;
         }
-
         body { 
-            background-color: var(--bg-page) !important;
-            color: var(--text-color) !important;
-            font-family: 'Sarabun', sans-serif; 
-            transition: all 0.3s ease;
-            min-height: 100vh;
+            background-color: var(--bg-page) !important; color: var(--text-color) !important;
+            font-family: 'Sarabun', sans-serif; transition: all 0.3s ease; min-height: 100vh;
         }
-
         .navbar { background-color: #212529 !important; }
-
         .admin-card { 
             background-color: var(--bg-card) !important;
             border-radius: 20px; border: none; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important; 
         }
-
-        .nav-tabs .nav-link { 
-            color: var(--text-color); font-weight: 600; border: none; opacity: 0.6;
-        }
+        .nav-tabs .nav-link { color: var(--text-color); font-weight: 600; border: none; opacity: 0.6; }
         .nav-tabs .nav-link.active { 
-            color: #4e73df !important; 
-            background: transparent !important;
-            border-bottom: 3px solid #4e73df !important; 
-            opacity: 1;
+            color: #4e73df !important; background: transparent !important;
+            border-bottom: 3px solid #4e73df !important; opacity: 1;
         }
-
         .table { color: var(--text-color) !important; }
         .form-control, .form-select {
-            background-color: var(--input-bg) !important;
-            color: var(--text-color) !important;
+            background-color: var(--input-bg) !important; color: var(--text-color) !important;
             border-color: var(--input-border) !important;
         }
     </style>
@@ -137,7 +117,6 @@ $res_borrowed = mysqli_query($conn, $sql_borrowed);
     </ul>
 
     <div class="tab-content">
-        
         <div class="tab-pane fade show active" id="members" role="tabpanel">
             <div class="card admin-card p-4">
                 <div class="table-responsive">
@@ -219,30 +198,24 @@ $res_borrowed = mysqli_query($conn, $sql_borrowed);
                         </div>
                         <div class="col-md-5">
                             <div class="mb-3">
-                                
-    <label class="form-label fw-bold small text-secondary">หมวดหมู่หนังสือ</label>
-    <select name="category" class="form-select form-select-lg shadow-sm">
-        <option value="ทั่วไป">-- เลือกหมวดหมู่ --</option>
-        <?php 
-        // ดึงหมวดหมู่ทั้งหมดที่มีอยู่ในฐานข้อมูลตอนนี้ (ไม่ซ้ำกัน)
-        $sql_cat = "SELECT DISTINCT category FROM books WHERE category IS NOT NULL AND category != '' ORDER BY category ASC";
-        $res_cat = mysqli_query($conn, $sql_cat);
-
-        if(mysqli_num_rows($res_cat) > 0) {
-            while($cat_row = mysqli_fetch_assoc($res_cat)) {
-                $cat_name = $cat_row['category'];
-                echo "<option value='".htmlspecialchars($cat_name)."'>".htmlspecialchars($cat_name)."</option>";
-            }
-        }
-        ?>
-        <option value="ทั่วไป">อื่นๆ (ระบุในรายละเอียด)</option>
-    </select>
-    <div class="form-text small opacity-50">หมวดหมู่จะอัปเดตอัตโนมัติตามข้อมูลที่มีอยู่ในฐานข้อมูล</div>
-</div>
+                                <label class="form-label fw-bold small text-secondary">หมวดหมู่หนังสือ</label>
+                                <select name="category" class="form-select form-select-lg shadow-sm">
+                                    <option value="ทั่วไป">-- เลือกหมวดหมู่ --</option>
+                                    <?php 
+                                    $sql_cat = "SELECT DISTINCT category FROM books WHERE category IS NOT NULL AND category != '' ORDER BY category ASC";
+                                    $res_cat = mysqli_query($conn, $sql_cat);
+                                    if(mysqli_num_rows($res_cat) > 0) {
+                                        while($cat_row = mysqli_fetch_assoc($res_cat)) {
+                                            echo "<option value='".htmlspecialchars($cat_row['category'])."'>".htmlspecialchars($cat_row['category'])."</option>";
+                                        }
+                                    }
+                                    ?>
+                                    <option value="ทั่วไป">อื่นๆ</option>
+                                </select>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold small text-secondary">จำนวนวันยืม (คั่นด้วย ,)</label>
-                                <input type="text" name="borrow_duration" class="form-control" value="7,15,30" placeholder="เช่น 7,14,30">
+                                <input type="text" name="borrow_duration" class="form-control" value="7,15,30">
                             </div>
                         </div>
                     </div>
@@ -253,12 +226,11 @@ $res_borrowed = mysqli_query($conn, $sql_borrowed);
                             <span class="input-group-text bg-light text-dark"><i class="bi bi-image"></i></span>
                             <input type="file" name="book_image" class="form-control" accept="image/*">
                         </div>
-                        <div class="form-text small text-muted">แนะนำขนาดไฟล์ไม่เกิน 2MB (JPG, PNG)</div>
                     </div>
 
                     <div class="mb-4">
                         <label class="form-label fw-bold small text-secondary">รายละเอียดหนังสือ / เรื่องย่อ</label>
-                        <textarea name="description" class="form-control" rows="5" placeholder="กรอกข้อมูลเบื้องต้นหรือเรื่องย่อของหนังสือ..."></textarea>
+                        <textarea name="description" class="form-control" rows="5" placeholder="กรอกเรื่องย่อเพื่อให้แสดงในหน้ารายละเอียด..."></textarea>
                     </div>
 
                     <div class="text-center">
@@ -286,13 +258,13 @@ $res_borrowed = mysqli_query($conn, $sql_borrowed);
                         <tbody>
                             <?php if(mysqli_num_rows($res_borrowed) > 0) { 
                                   while($row = mysqli_fetch_assoc($res_borrowed)) { 
-                                      $is_overdue = (date('Y-m-d') > $row['due_date']);
+                                      $is_overdue = (isset($row['due_date']) && date('Y-m-d') > $row['due_date']);
                             ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($row['fullname']); ?></td>
                                 <td><?php echo htmlspecialchars($row['book_name']); ?></td>
                                 <td class="<?php echo $is_overdue ? 'text-danger fw-bold' : ''; ?>">
-                                    <?php echo date('d/m/Y', strtotime($row['due_date'])); ?>
+                                    <?php echo isset($row['due_date']) ? date('d/m/Y', strtotime($row['due_date'])) : '-'; ?>
                                     <?php echo $is_overdue ? ' (เกินกำหนด)' : ''; ?>
                                 </td>
                                 <td class="text-center">
